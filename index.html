@@ -274,36 +274,7 @@ header{background:linear-gradient(108deg,var(--header-a),var(--header-b) 49%,var
 
 
 
-/* ---------- 1回ごとの血圧入力・統計画面 ---------- */
-main{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
-.bottom-nav{position:fixed;z-index:35;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:#e9edf9;border-top:1px solid #d9dfef;box-shadow:0 -4px 16px #1e3a5f12}
-.bottom-nav button{border:0;background:transparent;color:#8da1c6;min-height:64px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
-.bottom-nav button.active{color:#3155b8;background:#dce4fb}
-.bottom-nav .nav-icon{font-size:27px;line-height:1.1;font-weight:800}
-.input-screen{max-width:620px;margin:0 auto}
-.bp-grade-card{padding:10px 4px 14px;margin:0 0 12px;text-align:center}
-#entryGradeText{font-size:20px;font-style:italic;font-weight:750;color:var(--sub);margin:0 0 20px;min-height:30px}
-.grade-track{height:28px;display:grid;grid-template-columns:repeat(5,1fr);position:relative;margin:0 4px 30px;border-radius:2px;overflow:visible}
-.grade-track span{height:28px}
-.grade-track .g-low{background:#76d0ef}.grade-track .g-normal{background:#b9e77b}.grade-track .g-pre{background:#ffcf16}.grade-track .g-one{background:#ffa04b}.grade-track .g-two{background:#fa575b}
-.grade-marker{position:absolute;top:-11px;left:50%;width:10px;height:50px;background:#111;transform:translateX(-50%);z-index:2;transition:left .15s}
-.grade-heart{position:absolute;top:36px;left:50%;transform:translateX(-50%);font-size:29px;color:#f24683;line-height:1;transition:left .15s}
-.grade-legend{display:flex;justify-content:space-between;gap:3px;color:var(--sub);font-size:10px;margin:0 2px}
-.grade-legend span{flex:1;text-align:center}
-.entry-card{padding:14px 12px 16px;border:1px solid var(--line);border-radius:20px;background:var(--card);box-shadow:var(--shadow)}
-.picker-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center}
-.picker-title{font-size:15px;font-weight:750;color:var(--sub);line-height:1.35}
-.picker-unit{display:block;font-size:12px;font-weight:500;color:var(--sub)}
-.number-wheel{display:flex;flex-direction:column;align-items:stretch;margin-top:7px;min-width:0}
-.wheel-neighbor{border:0;background:transparent;color:#c7c7c7;font-family:inherit;font-weight:500;font-size:22px;height:49px;cursor:pointer}
-.wheel-current{width:100%;height:58px;min-width:0;border:0;border-top:1px solid #e6e6e6;border-bottom:1px solid #e6e6e6;border-radius:0;background:transparent;color:#e74783;text-align:center;font-family:inherit;font-weight:500;font-size:clamp(25px,7vw,34px);font-variant-numeric:tabular-nums;padding:0 2px;outline-offset:-2px}
-.wheel-current:focus{outline:2px solid #f2a1c0}
-.entry-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
-.entry-meta label{display:block;font-size:13px;color:var(--sub);font-weight:700}
-.entry-meta input,.entry-meta select{margin-top:4px;background:var(--input)}
-.entry-save{margin-top:16px;width:100%;min-height:58px;font-size:19px;border-radius:8px;background:#5064c6;box-shadow:0 3px 5px #253d8429}
-.entry-note{font-size:12px;color:var(--sub);text-align:center;margin:10px 2px 0}
-.recent-list{margin-top:14px}
+/* ---------- 設定内の統計グラフ・血圧入力の矢印 ---------- */
 .recent-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 2px;border-bottom:1px solid var(--line);font-size:14px}
 .recent-row:last-child{border-bottom:0}
 .recent-row strong{font-size:16px;font-variant-numeric:tabular-nums}
@@ -322,28 +293,21 @@ main{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
 .bp-chart{width:100%;height:auto;display:block;overflow:visible}
 .bp-chart text{font-family:inherit;fill:var(--text)}
 .chart-caption{font-size:12px;color:var(--sub);text-align:center;margin:4px 0 0}
-.settings-screen .card{padding:16px}
-@media(max-width:390px){
- .picker-grid{gap:4px}.picker-title{font-size:13px}.wheel-neighbor{height:44px;font-size:19px}
- .entry-card{padding-inline:8px}.grade-legend{font-size:9px}
- .bottom-nav button{min-height:59px;font-size:12px}
-}
-@media(min-width:700px){.bottom-nav{left:50%;right:auto;transform:translateX(-50%);width:min(100%,740px);border-radius:18px 18px 0 0}}
-
+.bp-stepper{display:grid;grid-template-columns:minmax(0,1fr) 25px;gap:3px;align-items:stretch}
+.bp-stepper input{min-width:0;width:100%;padding:10px 3px;text-align:center;font-size:18px;font-variant-numeric:tabular-nums}
+.fld .bp-spin-stack{display:flex;flex-direction:column;gap:2px;margin:0;min-width:0}
+.bp-spin{flex:1;min-height:20px;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--pri-weak);color:var(--pri);font-size:11px;line-height:1;cursor:pointer;touch-action:manipulation}
+.bp-spin:active{filter:brightness(.92)}
+.bp-spin:focus-visible{outline:2px solid var(--pri);outline-offset:1px}
+@media(max-width:390px){.bp-stepper{grid-template-columns:minmax(0,1fr) 22px}.bp-stepper input{font-size:16px;padding-inline:1px}.bp-spin{font-size:10px}}
 </style>
 </head>
 <body>
 <header><div class="head-inner"><h1 id="title"><span class="brand-mark" aria-hidden="true">♡</span>血圧記録ノート</h1><button class="hbtn" id="cfgBtn">⚙️ 設定・出力</button></div></header>
 <main id="view"></main>
-<nav class="bottom-nav" id="bottomNav" aria-label="メインメニュー">
-  <button type="button" data-tab="input" class="active"><span class="nav-icon">＋</span><span>入力</span></button>
-  <button type="button" data-tab="records"><span class="nav-icon">▤</span><span>記録</span></button>
-  <button type="button" data-tab="stats"><span class="nav-icon">▥</span><span>統計</span></button>
-  <button type="button" data-tab="settings"><span class="nav-icon">⚙</span><span>設定</span></button>
-</nav>
 <div id="cfg" hidden role="dialog" aria-modal="true" aria-labelledby="ctitle"><div class="sbox">
   <div class="shead"><button class="ib" data-cact="close" aria-label="閉じる">✕</button><div class="sttl" id="ctitle">設定・出力</div></div>
-  <div class="ctabs"><button data-ctab="items">⚙️ 項目設定</button><button data-ctab="csv">📤 CSV・保存</button></div>
+  <div class="ctabs"><button data-ctab="items">⚙️ 項目設定</button><button data-ctab="stats">📊 統計グラフ</button><button data-ctab="csv">📤 CSV・保存</button></div>
   <div class="sbody" id="cbody"></div>
   <div class="sfoot"><button class="btn block" data-cact="close">閉じる</button></div>
 </div></div>
@@ -430,7 +394,6 @@ const bpKey=it=>it.id==='bp_am'?'am':'pm';
 /* ---------- UI状態 ---------- */
 const today=fmt(new Date());
 let cur=today;
-let currentTab='input';
 let statsRange='month';
 let calY=new Date().getFullYear(),calM=new Date().getMonth();
 let csvFrom=null,csvTo=today,csvEmptyDays=false;
@@ -451,7 +414,7 @@ let cfgOpen=false,cfgTab='items',cfgPushed=false;
 function setCfg(h){const k=cfgBody.scrollTop;cfgBody.innerHTML=h;cfgBody.scrollTop=k}
 function renderCfg(){
   document.querySelectorAll('#cfg [data-ctab]').forEach(b=>b.classList.toggle('on',b.dataset.ctab===cfgTab));
-  if(cfgTab==='items')renderItems();else renderCsv();
+  if(cfgTab==='items')renderItems();else if(cfgTab==='stats')renderStats();else renderCsv();
 }
 function openCfg(t){
   cfgTab=t||cfgTab;cfgOpen=true;cfg.hidden=false;document.body.style.overflow='hidden';
@@ -461,7 +424,7 @@ function openCfg(t){
 function closeCfg(){
   cfgOpen=false;cfg.hidden=true;document.body.style.overflow='';
   if(cfgPushed){cfgPushed=false;skipPop=true;try{history.back()}catch(e){skipPop=false}}
-  renderMain(); // 設定の変更を現在の画面へ反映
+  renderCal(); // 設定の変更をカレンダーへ反映
 }
 
 /* ---------- カレンダー ---------- */
@@ -545,7 +508,7 @@ function renderCal(){
   $('#view').innerHTML=h;
 }
 
-/* ---------- 新しい1回ごとの測定入力 ---------- */
+/* ---------- 血圧区分・統計グラフ ---------- */
 const BP_LEVELS=[
   {name:'低血圧',color:'#76d0ef'},
   {name:'正常血圧',color:'#b9e77b'},
@@ -563,82 +526,6 @@ function classifyBP(s,d){
   if(a===null&&b===null)return null;
   return Math.max(a===null?-1:a,b===null?-1:b);
 }
-function updateEntryPreview(){
-  const s=$('#entryS'),d=$('#entryD'),p=$('#entryP');
-  if(!s||!d||!p)return;
-  const level=classifyBP(s.value,d.value);
-  const title=$('#entryGradeText'),marker=$('#gradeMarker'),heart=$('#gradeHeart');
-  if(level===null){title.textContent='血圧を入力してください';marker.style.left='50%';heart.style.left='50%'}
-  else{title.textContent=BP_LEVELS[level].name;const x=`${level*20+10}%`;marker.style.left=x;heart.style.left=x}
-  for(const f of ['S','D','P']){
-    const input=$('#entry'+f),v=num(input.value);
-    const prev=$('#entry'+f+'Prev'),next=$('#entry'+f+'Next');
-    if(prev)prev.textContent=v===null?'－':String(v-1);
-    if(next)next.textContent=v===null?'－':String(v+1);
-  }
-}
-function spinEntry(field,delta){
-  const el=$('#entry'+field.toUpperCase());if(!el)return;
-  const base=field==='s'?120:field==='d'?80:70;
-  const current=num(el.value);
-  const next=Math.max(0,Math.min(field==='p'?250:300,(current===null?base:current)+delta));
-  el.value=next;updateEntryPreview();
-}
-function recentEntries(limit=5){
-  const out=[];
-  for(const [date,raw] of Object.entries(state.records)){
-    const r=fixRec(raw);
-    for(const e of r.entries||[])out.push({...e,date});
-  }
-  return out.sort((a,b)=>`${b.date} ${b.time||''}`.localeCompare(`${a.date} ${a.time||''}`)).slice(0,limit);
-}
-function renderInput(){
-  const now=nowStr(),recent=recentEntries(5);
-  let h=`<div class="input-screen">
-    <section class="bp-grade-card" aria-live="polite">
-      <div id="entryGradeText">血圧を入力してください</div>
-      <div class="grade-track" aria-label="血圧区分">
-        <span class="g-low"></span><span class="g-normal"></span><span class="g-pre"></span><span class="g-one"></span><span class="g-two"></span>
-        <i class="grade-marker" id="gradeMarker"></i><b class="grade-heart" id="gradeHeart">♥</b>
-      </div>
-      <div class="grade-legend"><span>低血圧</span><span>正常血圧</span><span>前段階</span><span>1期</span><span>2期</span></div>
-    </section>
-    <section class="entry-card">
-      <div class="picker-grid">
-        <div><div class="picker-title">収縮期<span class="picker-unit">mmHg</span></div><div class="number-wheel"><button class="wheel-neighbor" id="entrySPrev" data-spin="s" data-delta="-1" aria-label="最高血圧を1下げる">－</button><input class="wheel-current" id="entryS" data-entry="s" type="number" inputmode="numeric" min="30" max="300" step="1" placeholder="－" aria-label="収縮期血圧"><button class="wheel-neighbor" id="entrySNext" data-spin="s" data-delta="1" aria-label="最高血圧を1上げる">－</button></div></div>
-        <div><div class="picker-title">拡張期<span class="picker-unit">mmHg</span></div><div class="number-wheel"><button class="wheel-neighbor" id="entryDPrev" data-spin="d" data-delta="-1" aria-label="最低血圧を1下げる">－</button><input class="wheel-current" id="entryD" data-entry="d" type="number" inputmode="numeric" min="20" max="200" step="1" placeholder="－" aria-label="拡張期血圧"><button class="wheel-neighbor" id="entryDNext" data-spin="d" data-delta="1" aria-label="最低血圧を1上げる">－</button></div></div>
-        <div><div class="picker-title">心拍数<span class="picker-unit">bpm</span></div><div class="number-wheel"><button class="wheel-neighbor" id="entryPPrev" data-spin="p" data-delta="-1" aria-label="心拍数を1下げる">－</button><input class="wheel-current" id="entryP" data-entry="p" type="number" inputmode="numeric" min="20" max="250" step="1" placeholder="－" aria-label="心拍数"><button class="wheel-neighbor" id="entryPNext" data-spin="p" data-delta="1" aria-label="心拍数を1上げる">－</button></div></div>
-      </div>
-      <div class="entry-meta">
-        <label>📅 日付<input type="date" id="entryDate" value="${today}"></label>
-        <label>◷ 時刻<input type="time" id="entryTime" value="${now.slice(11)}"></label>
-        <label style="grid-column:1/-1">◇ タグ<select id="entryTag"><option value="">タグなし</option><option>朝</option><option>昼</option><option>夜</option><option>飲酒後</option><option>食後</option><option>運動後</option><option>服薬後</option><option>その他</option></select></label>
-      </div>
-      <button class="btn entry-save" data-act="saveEntry">入力</button>
-      <p class="entry-note">最高血圧・最低血圧を入力してください。心拍数とタグは任意です。</p>
-    </section>
-    <section class="card recent-list"><h2>🕒 最近の測定</h2>`;
-  if(!recent.length)h+='<p class="hint">まだ測定記録がありません。上の欄から入力してください。</p>';
-  else for(const e of recent){
-    h+=`<div class="recent-row"><div><small>${esc(e.date)}　${esc(e.time||'')}</small><strong>${esc(e.s??'-')} / ${esc(e.d??'-')} mmHg</strong></div><div style="text-align:right"><strong>${esc(e.p??'-')}</strong><small>bpm ${esc(e.tag||'')}</small></div></div>`;
-  }
-  h+='</section></div>';
-  $('#view').innerHTML=h;updateEntryPreview();
-}
-function saveEntry(){
-  const date=$('#entryDate')?.value||today,time=$('#entryTime')?.value||nowStr().slice(11);
-  const s=num($('#entryS')?.value),d=num($('#entryD')?.value),p=num($('#entryP')?.value);
-  if(s===null||d===null){toast('最高血圧と最低血圧を入力してください');return}
-  if(s<30||s>300||d<20||d>200||(p!==null&&(p<20||p>250))){toast('入力した数値を確認してください');return}
-  const r=fixRec(state.records[date]||blank());
-  r.entries.push({id:'m'+Date.now().toString(36),time,s,d,p,tag:$('#entryTag')?.value||''});
-  r.entries.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-  r.saved=`${date} ${time}`;state.records[date]=r;
-  if(!save())return;
-  currentTab='input';renderMain();toast('血圧を保存しました');
-}
-
-/* ---------- 統計・グラフ ---------- */
 function collectReadings(){
   const out=[];
   for(const [date,raw] of Object.entries(state.records)){
@@ -712,25 +599,7 @@ function renderStats(){
   <section class="card"><h2>区分の目安</h2><div class="legend">
     <span>🟦 低血圧：90未満 / 60未満</span><span>🟩 正常：90–120 / 60–80</span><span>🟨 前段階：121–140 / 81–90</span><span>🟧 1期：141–160 / 91–100</span><span>🟥 2期：160超 / 100超</span>
   </div><p class="hint">このグラフは記録の振り返り用です。診断や治療方針の判断には使用せず、医療機関の基準に従ってください。</p></section>`;
-  $('#view').innerHTML=h;
-}
-function renderSettings(){
-  $('#view').innerHTML=`<div class="settings-screen"><section class="welcome"><div><span class="welcome-tag">アプリの管理</span><h2>設定・データ管理</h2><p>入力項目、CSV出力、バックアップ</p></div></section>
-    <section class="card"><h2>⚙️ 項目設定・入力補助</h2><p class="hint">血圧以外の記録項目や、入力候補の設定を変更できます。</p><button class="btn block" data-act="openSettings">設定を開く</button></section>
-    <section class="card"><h2>💾 データの保存</h2><p class="hint">CSV出力とバックアップ・復元は設定画面から利用できます。機種変更前にはバックアップを保存してください。</p><button class="btn ghost block" data-act="openCsvSettings">CSV・バックアップを開く</button></section>
-  </div>`;
-}
-function setTab(tab){
-  currentTab=tab;
-  document.querySelectorAll('#bottomNav [data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
-  renderMain();
-}
-function renderMain(){
-  document.querySelectorAll('#bottomNav [data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===currentTab));
-  if(currentTab==='records')renderCal();
-  else if(currentTab==='stats')renderStats();
-  else if(currentTab==='settings')renderSettings();
-  else renderInput();
+  setCfg(h);
 }
 
 /* ---------- 入力 ---------- */
@@ -810,7 +679,7 @@ function saveSheet(){
   if(!save())return;
   const d=parse(cur);calY=d.getFullYear();calM=d.getMonth();
   closeSheet();
-  renderMain();
+  renderCal();
   toast('保存しました');
 }
 function renderSheet(){
@@ -842,7 +711,7 @@ function renderSheet(){
           const useS=rowEmpty&&sg&&sg[f]!=='';
           if(useS)hasS=true;
           const val=useS?sg[f]:rec[k][i][f];
-          h+=`<label class="fld"><span>${short}${f==='p'?'':'(mmHg)'}</span><input type="number" inputmode="numeric" class="${useS?'sugg':''}" data-bp="${k}" data-i="${i}" data-f="${f}" value="${esc(val)}" placeholder="${short}" aria-label="${esc(it.name)}${i+1}回目の${long}"></label>`;
+          h+=`<label class="fld"><span>${short}${f==='p'?'':'(mmHg)'}</span><div class="bp-stepper"><input type="number" inputmode="numeric" min="0" step="1" class="${useS?'sugg':''}" data-bp="${k}" data-i="${i}" data-f="${f}" value="${esc(val)}" placeholder="${short}" aria-label="${esc(it.name)}${i+1}回目の${long}"><span class="bp-spin-stack"><button type="button" class="bp-spin" data-bp-spin="${k}" data-i="${i}" data-f="${f}" data-delta="1" aria-label="${long}を1増やす">▲</button><button type="button" class="bp-spin" data-bp-spin="${k}" data-i="${i}" data-f="${f}" data-delta="-1" aria-label="${long}を1減らす">▼</button></span></div></label>`;
         }
         h+='</div>';
       }
@@ -871,6 +740,26 @@ function renderSheet(){
   }
   if(state.records[cur])h+=`<button class="btn ghost block" data-act="delDay" style="color:var(--danger)">この日の保存済み記録を削除</button>`;
   sbody.innerHTML=h;sbody.scrollTop=keep;updDirty();
+}
+
+function stepBPField(button){
+  const k=button.dataset.bpSpin,i=Number(button.dataset.i),f=button.dataset.f,delta=Number(button.dataset.delta);
+  const input=sbody.querySelector(`input[data-bp="${k}"][data-i="${i}"][data-f="${f}"]`);
+  if(!input||!draft||!draft[k]||!draft[k][i])return;
+  const current=num(input.value);
+  const next=Math.max(0,Math.min(f==='p'?250:300,(current===null?0:current)+delta));
+  input.value=String(next);
+  const row=sbody.querySelectorAll(`input[data-bp="${k}"][data-i="${i}"]`);
+  row.forEach(x=>{draft[k][i][x.dataset.f]=x.value;x.classList.remove('sugg')});
+  stampBP(draft[k][i]);
+  const mt=sbody.querySelector(`[data-mt="${k}${i}"]`);
+  if(mt)mt.textContent=draft[k][i].t?'🕒'+draft[k][i].t.slice(11):'';
+  if(!sbody.querySelector(`input.sugg[data-bp="${k}"]`)){
+    sbody.querySelectorAll(`[data-act="commitSugg"][data-k="${k}"],[data-sh="${k}"]`).forEach(x=>x.remove());
+  }
+  const a=avgOf(draft[k]),box=$('#avg-'+k);
+  if(box){box.className='avg '+(isHigh(a)?'hi':'');box.innerHTML=avgHTML(draft[k]);}
+  updDirty();
 }
 
 /* ---------- 項目設定 ---------- */
@@ -1005,7 +894,6 @@ function download(name,text,type){
 const view=$('#view');
 const bindBoth=(type,fn)=>{view.addEventListener(type,fn);cfgBody.addEventListener(type,fn)};
 $('#cfgBtn').addEventListener('click',()=>openCfg());
-$('#bottomNav').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)setTab(b.dataset.tab)});
 cfg.addEventListener('click',e=>{
   if(e.target===cfg){closeCfg();return}
   const t=e.target.closest('[data-ctab]');
@@ -1014,8 +902,6 @@ cfg.addEventListener('click',e=>{
 });
 
 bindBoth('click',async e=>{
-  const spin=e.target.closest('[data-spin]');
-  if(spin){spinEntry(spin.dataset.spin,+spin.dataset.delta);return}
   const range=e.target.closest('[data-range]');
   if(range){statsRange=range.dataset.range;renderStats();return}
   const cell=e.target.closest('.cell[data-date]');
@@ -1025,9 +911,6 @@ bindBoth('click',async e=>{
   const act=b.dataset.act;
   switch(act){
     case 'openToday':openSheet(today);break;
-    case 'saveEntry':saveEntry();break;
-    case 'openSettings':openCfg('items');break;
-    case 'openCsvSettings':openCfg('csv');break;
     case 'prevM':calM--;if(calM<0){calM=11;calY--}renderCal();break;
     case 'nextM':calM++;if(calM>11){calM=0;calY++}renderCal();break;
     case 'thisM':{const n=new Date();calY=n.getFullYear();calM=n.getMonth();renderCal();break}
@@ -1070,7 +953,6 @@ bindBoth('click',async e=>{
 
 bindBoth('input',e=>{
   const t=e.target;
-  if(t.dataset.entry){updateEntryPreview();return}
   if(t.dataset.def){state.defaults[t.dataset.def]=t.value;save()}
   else if(t.dataset.ie){
     const it=state.items.find(i=>i.id===t.closest('.item').dataset.id);
@@ -1105,6 +987,8 @@ bindBoth('change',async e=>{
 /* ---------- 入力ポップアップのイベント ---------- */
 sheet.addEventListener('click',async e=>{
   if(e.target===sheet){requestClose(false);return}
+  const bpSpin=e.target.closest('[data-bp-spin]');
+  if(bpSpin){stepBPField(bpSpin);return}
   const seg=e.target.closest('[data-seg]');
   if(seg){
     const box=seg.parentElement,id=box.dataset.v,nv=seg.dataset.seg==='true';
@@ -1125,7 +1009,7 @@ sheet.addEventListener('click',async e=>{
     case 'delDay':
       if(await ask(`${cur} の保存済みの記録を削除しますか？`,'削除する')){
         delete state.records[cur];save();
-        closeSheet();renderMain();toast('削除しました');
+        closeSheet();renderCal();toast('削除しました');
       }
       break;
     case 'removeEntry':{
@@ -1199,7 +1083,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&$('#modal').hidden){if(sheetOpen)requestClose(false);else if(cfgOpen)closeCfg()}
 });
 
-renderMain();
+renderCal();
 
 /* ---------- PWA：オフライン対応・データ保護 ---------- */
 if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
