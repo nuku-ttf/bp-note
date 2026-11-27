@@ -272,11 +272,75 @@ header{background:linear-gradient(108deg,var(--header-a),var(--header-b) 49%,var
 .seg button.on{background:#2452b6;color:#fff}
 #toast{background:#21334c}
 
+
+
+/* ---------- 1回ごとの血圧入力・統計画面 ---------- */
+main{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+.bottom-nav{position:fixed;z-index:35;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:#e9edf9;border-top:1px solid #d9dfef;box-shadow:0 -4px 16px #1e3a5f12}
+.bottom-nav button{border:0;background:transparent;color:#8da1c6;min-height:64px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.bottom-nav button.active{color:#3155b8;background:#dce4fb}
+.bottom-nav .nav-icon{font-size:27px;line-height:1.1;font-weight:800}
+.input-screen{max-width:620px;margin:0 auto}
+.bp-grade-card{padding:10px 4px 14px;margin:0 0 12px;text-align:center}
+#entryGradeText{font-size:20px;font-style:italic;font-weight:750;color:var(--sub);margin:0 0 20px;min-height:30px}
+.grade-track{height:28px;display:grid;grid-template-columns:repeat(5,1fr);position:relative;margin:0 4px 30px;border-radius:2px;overflow:visible}
+.grade-track span{height:28px}
+.grade-track .g-low{background:#76d0ef}.grade-track .g-normal{background:#b9e77b}.grade-track .g-pre{background:#ffcf16}.grade-track .g-one{background:#ffa04b}.grade-track .g-two{background:#fa575b}
+.grade-marker{position:absolute;top:-11px;left:50%;width:10px;height:50px;background:#111;transform:translateX(-50%);z-index:2;transition:left .15s}
+.grade-heart{position:absolute;top:36px;left:50%;transform:translateX(-50%);font-size:29px;color:#f24683;line-height:1;transition:left .15s}
+.grade-legend{display:flex;justify-content:space-between;gap:3px;color:var(--sub);font-size:10px;margin:0 2px}
+.grade-legend span{flex:1;text-align:center}
+.entry-card{padding:14px 12px 16px;border:1px solid var(--line);border-radius:20px;background:var(--card);box-shadow:var(--shadow)}
+.picker-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center}
+.picker-title{font-size:15px;font-weight:750;color:var(--sub);line-height:1.35}
+.picker-unit{display:block;font-size:12px;font-weight:500;color:var(--sub)}
+.number-wheel{display:flex;flex-direction:column;align-items:stretch;margin-top:7px;min-width:0}
+.wheel-neighbor{border:0;background:transparent;color:#c7c7c7;font-family:inherit;font-weight:500;font-size:22px;height:49px;cursor:pointer}
+.wheel-current{width:100%;height:58px;min-width:0;border:0;border-top:1px solid #e6e6e6;border-bottom:1px solid #e6e6e6;border-radius:0;background:transparent;color:#e74783;text-align:center;font-family:inherit;font-weight:500;font-size:clamp(25px,7vw,34px);font-variant-numeric:tabular-nums;padding:0 2px;outline-offset:-2px}
+.wheel-current:focus{outline:2px solid #f2a1c0}
+.entry-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+.entry-meta label{display:block;font-size:13px;color:var(--sub);font-weight:700}
+.entry-meta input,.entry-meta select{margin-top:4px;background:var(--input)}
+.entry-save{margin-top:16px;width:100%;min-height:58px;font-size:19px;border-radius:8px;background:#5064c6;box-shadow:0 3px 5px #253d8429}
+.entry-note{font-size:12px;color:var(--sub);text-align:center;margin:10px 2px 0}
+.recent-list{margin-top:14px}
+.recent-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 2px;border-bottom:1px solid var(--line);font-size:14px}
+.recent-row:last-child{border-bottom:0}
+.recent-row strong{font-size:16px;font-variant-numeric:tabular-nums}
+.recent-row small{display:block;color:var(--sub);font-size:11px}
+.range-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:8px 0 14px}
+.range-tabs button{border:0;background:transparent;color:#b3b8c3;font-size:15px;font-weight:750;padding:9px;border-radius:10px;min-height:42px}
+.range-tabs button.active{color:#3155b8;background:#e5ebff}
+.avg-circles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 10px}
+.avg-circle{aspect-ratio:1/1;border:5px solid #d4d4d4;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--card);min-width:0}
+.avg-circle small{color:#c0c0c0;font-size:12px}
+.avg-circle strong{font-size:clamp(22px,6vw,32px);font-weight:500;color:#666;font-variant-numeric:tabular-nums;line-height:1.35}
+.avg-circle span{font-size:14px;font-weight:750}
+.avg-circle.s span{color:#e46d69}.avg-circle.d span{color:#91c85e}.avg-circle.p span{color:#69c5e4}
+.chart-card{padding:12px 8px 10px;overflow:hidden}
+.chart-title{font-size:15px;font-weight:800;margin:0 6px 4px}
+.bp-chart{width:100%;height:auto;display:block;overflow:visible}
+.bp-chart text{font-family:inherit;fill:var(--text)}
+.chart-caption{font-size:12px;color:var(--sub);text-align:center;margin:4px 0 0}
+.settings-screen .card{padding:16px}
+@media(max-width:390px){
+ .picker-grid{gap:4px}.picker-title{font-size:13px}.wheel-neighbor{height:44px;font-size:19px}
+ .entry-card{padding-inline:8px}.grade-legend{font-size:9px}
+ .bottom-nav button{min-height:59px;font-size:12px}
+}
+@media(min-width:700px){.bottom-nav{left:50%;right:auto;transform:translateX(-50%);width:min(100%,740px);border-radius:18px 18px 0 0}}
+
 </style>
 </head>
 <body>
 <header><div class="head-inner"><h1 id="title"><span class="brand-mark" aria-hidden="true">♡</span>血圧記録ノート</h1><button class="hbtn" id="cfgBtn">⚙️ 設定・出力</button></div></header>
 <main id="view"></main>
+<nav class="bottom-nav" id="bottomNav" aria-label="メインメニュー">
+  <button type="button" data-tab="input" class="active"><span class="nav-icon">＋</span><span>入力</span></button>
+  <button type="button" data-tab="records"><span class="nav-icon">▤</span><span>記録</span></button>
+  <button type="button" data-tab="stats"><span class="nav-icon">▥</span><span>統計</span></button>
+  <button type="button" data-tab="settings"><span class="nav-icon">⚙</span><span>設定</span></button>
+</nav>
 <div id="cfg" hidden role="dialog" aria-modal="true" aria-labelledby="ctitle"><div class="sbox">
   <div class="shead"><button class="ib" data-cact="close" aria-label="閉じる">✕</button><div class="sttl" id="ctitle">設定・出力</div></div>
   <div class="ctabs"><button data-ctab="items">⚙️ 項目設定</button><button data-ctab="csv">📤 CSV・保存</button></div>
@@ -337,13 +401,14 @@ function save(){
   catch(e){toast('この環境では保存できません。ブラウザの設定をご確認ください');return false}
 }
 const blankM=()=>({s:'',d:'',p:''});
-const blank=()=>({am:[blankM(),blankM()],pm:[blankM(),blankM()],v:{}});
+const blank=()=>({am:[blankM(),blankM()],pm:[blankM(),blankM()],v:{},entries:[]});
 function fixRec(r){ // 古いデータ・欠損の補正
   const b=blank();
   r=r||{};
   for(const k of['am','pm']){r[k]=Array.isArray(r[k])?r[k]:b[k];while(r[k].length<2)r[k].push(blankM())}
   r.v=r.v||{};
   r.vt=r.vt||{}; // その他項目の入力日時
+  r.entries=Array.isArray(r.entries)?r.entries:[]; // 1回ごとの新形式測定
   return r;
 }
 function avgOf(list){
@@ -357,7 +422,7 @@ function avgOf(list){
 }
 function isEmpty(r){
   const bpE=l=>l.every(m=>!m.s&&!m.d&&!m.p);
-  return bpE(r.am)&&bpE(r.pm)&&Object.values(r.v).every(x=>x===''||x==null);
+  return bpE(r.am)&&bpE(r.pm)&&Object.values(r.v).every(x=>x===''||x==null)&&(!Array.isArray(r.entries)||r.entries.length===0);
 }
 const isHigh=a=>a&&((a.s!=null&&a.s>=135)||(a.d!=null&&a.d>=85));
 const bpKey=it=>it.id==='bp_am'?'am':'pm';
@@ -365,6 +430,8 @@ const bpKey=it=>it.id==='bp_am'?'am':'pm';
 /* ---------- UI状態 ---------- */
 const today=fmt(new Date());
 let cur=today;
+let currentTab='input';
+let statsRange='month';
 let calY=new Date().getFullYear(),calM=new Date().getMonth();
 let csvFrom=null,csvTo=today,csvEmptyDays=false;
 
@@ -394,7 +461,7 @@ function openCfg(t){
 function closeCfg(){
   cfgOpen=false;cfg.hidden=true;document.body.style.overflow='';
   if(cfgPushed){cfgPushed=false;skipPop=true;try{history.back()}catch(e){skipPop=false}}
-  renderCal(); // 設定の変更をカレンダーへ反映
+  renderMain(); // 設定の変更を現在の画面へ反映
 }
 
 /* ---------- カレンダー ---------- */
@@ -419,6 +486,15 @@ function cellHTML(ds,dow){
         if(it.val)lines+=`<span class="ln reading custom" title="${esc(it.name)}"><span class="reading-mark">${ic}</span><span class="reading-value">${esc(v)}</span></span>`;else icons+=`<span>${ic}</span>`;
       }else{
         if(rec.v[it.id])icons+=`<span>${ic}</span>`;
+      }
+    }
+    if(rec.entries&&rec.entries.length){
+      const valid=rec.entries.filter(e=>num(e.s)!==null||num(e.d)!==null);
+      if(valid.length){
+        const sAvg=valid.map(e=>num(e.s)).filter(x=>x!==null);
+        const dAvg=valid.map(e=>num(e.d)).filter(x=>x!==null);
+        const a={s:sAvg.length?Math.round(sAvg.reduce((x,y)=>x+y,0)/sAvg.length):null,d:dAvg.length?Math.round(dAvg.reduce((x,y)=>x+y,0)/dAvg.length):null};
+        lines+=`<span class="ln reading custom ${isHigh(a)?'hi':''}" title="個別測定 ${valid.length}件"><span class="reading-mark">♥</span><span class="reading-value">${a.s??'-'}/${a.d??'-'}</span></span>`;
       }
     }
   }
@@ -454,13 +530,207 @@ function renderCal(){
   const am=sum('am'),pm=sum('pm');
   const drink=ds.filter(d=>state.records[d].v&&state.records[d].v.alcohol===true).length;
   const rec=ds.length;
+  const individual=ds.flatMap(d=>fixRec(state.records[d]).entries||[]);
+  const individualS=mean(individual.map(e=>num(e.s)).filter(x=>x!==null));
+  const individualD=mean(individual.map(e=>num(e.d)).filter(x=>x!==null));
+  const individualTxt=individualS!==null||individualD!==null?`${individualS??'-'}/${individualD??'-'}`:'―';
   h+=`<div class="card" style="margin-top:12px"><h2>📊 ${calM+1}月のまとめ</h2><div class="stats">
    <div class="stat"><small>朝の平均（${am.n}日）</small><b>${am.txt}</b></div>
    <div class="stat"><small>夜の平均（${pm.n}日）</small><b>${pm.txt}</b></div>
+   <div class="stat"><small>個別測定の平均（${individual.length}回）</small><b>${individualTxt}</b></div>
    <div class="stat"><small>飲酒した日</small><b>${drink}日</b></div>
+   <div class="stat"><small>個別測定回数</small><b>${individual.length}回</b></div>
    <div class="stat"><small>記録のある日</small><b>${rec}日</b></div></div></div>
   <p class="note">「入力する」（今日の分）か、カレンダーの日付をタップすると入力画面が開きます。</p>`;
   $('#view').innerHTML=h;
+}
+
+/* ---------- 新しい1回ごとの測定入力 ---------- */
+const BP_LEVELS=[
+  {name:'低血圧',color:'#76d0ef'},
+  {name:'正常血圧',color:'#b9e77b'},
+  {name:'高血圧前段階',color:'#ffcf16'},
+  {name:'1期高血圧',color:'#ffa04b'},
+  {name:'2期高血圧',color:'#fa575b'}
+];
+function levelOf(value,field){
+  const n=num(value);if(n===null)return null;
+  if(field==='s')return n<90?0:n<=120?1:n<=140?2:n<=160?3:4;
+  return n<60?0:n<=80?1:n<=90?2:n<=100?3:4;
+}
+function classifyBP(s,d){
+  const a=levelOf(s,'s'),b=levelOf(d,'d');
+  if(a===null&&b===null)return null;
+  return Math.max(a===null?-1:a,b===null?-1:b);
+}
+function updateEntryPreview(){
+  const s=$('#entryS'),d=$('#entryD'),p=$('#entryP');
+  if(!s||!d||!p)return;
+  const level=classifyBP(s.value,d.value);
+  const title=$('#entryGradeText'),marker=$('#gradeMarker'),heart=$('#gradeHeart');
+  if(level===null){title.textContent='血圧を入力してください';marker.style.left='50%';heart.style.left='50%'}
+  else{title.textContent=BP_LEVELS[level].name;const x=`${level*20+10}%`;marker.style.left=x;heart.style.left=x}
+  for(const f of ['S','D','P']){
+    const input=$('#entry'+f),v=num(input.value);
+    const prev=$('#entry'+f+'Prev'),next=$('#entry'+f+'Next');
+    if(prev)prev.textContent=v===null?'－':String(v-1);
+    if(next)next.textContent=v===null?'－':String(v+1);
+  }
+}
+function spinEntry(field,delta){
+  const el=$('#entry'+field.toUpperCase());if(!el)return;
+  const base=field==='s'?120:field==='d'?80:70;
+  const current=num(el.value);
+  const next=Math.max(0,Math.min(field==='p'?250:300,(current===null?base:current)+delta));
+  el.value=next;updateEntryPreview();
+}
+function recentEntries(limit=5){
+  const out=[];
+  for(const [date,raw] of Object.entries(state.records)){
+    const r=fixRec(raw);
+    for(const e of r.entries||[])out.push({...e,date});
+  }
+  return out.sort((a,b)=>`${b.date} ${b.time||''}`.localeCompare(`${a.date} ${a.time||''}`)).slice(0,limit);
+}
+function renderInput(){
+  const now=nowStr(),recent=recentEntries(5);
+  let h=`<div class="input-screen">
+    <section class="bp-grade-card" aria-live="polite">
+      <div id="entryGradeText">血圧を入力してください</div>
+      <div class="grade-track" aria-label="血圧区分">
+        <span class="g-low"></span><span class="g-normal"></span><span class="g-pre"></span><span class="g-one"></span><span class="g-two"></span>
+        <i class="grade-marker" id="gradeMarker"></i><b class="grade-heart" id="gradeHeart">♥</b>
+      </div>
+      <div class="grade-legend"><span>低血圧</span><span>正常血圧</span><span>前段階</span><span>1期</span><span>2期</span></div>
+    </section>
+    <section class="entry-card">
+      <div class="picker-grid">
+        <div><div class="picker-title">収縮期<span class="picker-unit">mmHg</span></div><div class="number-wheel"><button class="wheel-neighbor" id="entrySPrev" data-spin="s" data-delta="-1" aria-label="最高血圧を1下げる">－</button><input class="wheel-current" id="entryS" data-entry="s" type="number" inputmode="numeric" min="30" max="300" step="1" placeholder="－" aria-label="収縮期血圧"><button class="wheel-neighbor" id="entrySNext" data-spin="s" data-delta="1" aria-label="最高血圧を1上げる">－</button></div></div>
+        <div><div class="picker-title">拡張期<span class="picker-unit">mmHg</span></div><div class="number-wheel"><button class="wheel-neighbor" id="entryDPrev" data-spin="d" data-delta="-1" aria-label="最低血圧を1下げる">－</button><input class="wheel-current" id="entryD" data-entry="d" type="number" inputmode="numeric" min="20" max="200" step="1" placeholder="－" aria-label="拡張期血圧"><button class="wheel-neighbor" id="entryDNext" data-spin="d" data-delta="1" aria-label="最低血圧を1上げる">－</button></div></div>
+        <div><div class="picker-title">心拍数<span class="picker-unit">bpm</span></div><div class="number-wheel"><button class="wheel-neighbor" id="entryPPrev" data-spin="p" data-delta="-1" aria-label="心拍数を1下げる">－</button><input class="wheel-current" id="entryP" data-entry="p" type="number" inputmode="numeric" min="20" max="250" step="1" placeholder="－" aria-label="心拍数"><button class="wheel-neighbor" id="entryPNext" data-spin="p" data-delta="1" aria-label="心拍数を1上げる">－</button></div></div>
+      </div>
+      <div class="entry-meta">
+        <label>📅 日付<input type="date" id="entryDate" value="${today}"></label>
+        <label>◷ 時刻<input type="time" id="entryTime" value="${now.slice(11)}"></label>
+        <label style="grid-column:1/-1">◇ タグ<select id="entryTag"><option value="">タグなし</option><option>朝</option><option>昼</option><option>夜</option><option>飲酒後</option><option>食後</option><option>運動後</option><option>服薬後</option><option>その他</option></select></label>
+      </div>
+      <button class="btn entry-save" data-act="saveEntry">入力</button>
+      <p class="entry-note">最高血圧・最低血圧を入力してください。心拍数とタグは任意です。</p>
+    </section>
+    <section class="card recent-list"><h2>🕒 最近の測定</h2>`;
+  if(!recent.length)h+='<p class="hint">まだ測定記録がありません。上の欄から入力してください。</p>';
+  else for(const e of recent){
+    h+=`<div class="recent-row"><div><small>${esc(e.date)}　${esc(e.time||'')}</small><strong>${esc(e.s??'-')} / ${esc(e.d??'-')} mmHg</strong></div><div style="text-align:right"><strong>${esc(e.p??'-')}</strong><small>bpm ${esc(e.tag||'')}</small></div></div>`;
+  }
+  h+='</section></div>';
+  $('#view').innerHTML=h;updateEntryPreview();
+}
+function saveEntry(){
+  const date=$('#entryDate')?.value||today,time=$('#entryTime')?.value||nowStr().slice(11);
+  const s=num($('#entryS')?.value),d=num($('#entryD')?.value),p=num($('#entryP')?.value);
+  if(s===null||d===null){toast('最高血圧と最低血圧を入力してください');return}
+  if(s<30||s>300||d<20||d>200||(p!==null&&(p<20||p>250))){toast('入力した数値を確認してください');return}
+  const r=fixRec(state.records[date]||blank());
+  r.entries.push({id:'m'+Date.now().toString(36),time,s,d,p,tag:$('#entryTag')?.value||''});
+  r.entries.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  r.saved=`${date} ${time}`;state.records[date]=r;
+  if(!save())return;
+  currentTab='input';renderMain();toast('血圧を保存しました');
+}
+
+/* ---------- 統計・グラフ ---------- */
+function collectReadings(){
+  const out=[];
+  for(const [date,raw] of Object.entries(state.records)){
+    const r=fixRec(raw);
+    for(const e of r.entries||[]){
+      out.push({date,time:e.time||'',s:num(e.s),d:num(e.d),p:num(e.p),tag:e.tag||''});
+    }
+    // 旧形式（朝・夜各2回）の記録は、それぞれの時間帯平均を1件として集計する。
+    for(const k of ['am','pm']){
+      const a=avgOf(r[k]);
+      if(a&&(a.s!==null||a.d!==null||a.p!==null))out.push({date,time:k==='am'?'08:00':'21:00',s:a.s,d:a.d,p:a.p,tag:k==='am'?'朝（従来記録）':'夜（従来記録）'});
+    }
+  }
+  return out.sort((a,b)=>`${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
+}
+function dateRange(mode){
+  const end=parse(today);let start;
+  if(mode==='week'){start=new Date(end);start.setDate(start.getDate()-6)}
+  else if(mode==='month')start=new Date(end.getFullYear(),end.getMonth(),1);
+  else{
+    const keys=Object.keys(state.records).sort();start=keys.length?parse(keys[0]):new Date(end);
+  }
+  return {from:fmt(start),to:today};
+}
+function meanField(list,key){const a=list.map(x=>num(x[key])).filter(x=>x!==null);return a.length?Math.round(a.reduce((s,n)=>s+n,0)/a.length):0}
+function renderCategoryChart(readings){
+  const labels=['低血圧','正常血圧','前段階','1期','2期'];
+  const counts=[0,0,0,0,0];
+  readings.forEach(r=>{const c=classifyBP(r.s,r.d);if(c!==null)counts[c]++});
+  const maxCount=Math.max(0,...counts),maxY=Math.max(10,Math.ceil(maxCount/5)*5);
+  const W=760,H=340,left=48,right=12,top=18,bottom=64,plotH=H-top-bottom,plotW=W-left-right;
+  const step=maxY/5,barW=68,slot=plotW/5;
+  let svg=`<svg class="bp-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="血圧区分ごとの測定件数グラフ">`;
+  for(let i=0;i<=5;i++){
+    const val=maxY-i*step,y=top+i*plotH/5;
+    svg+=`<line x1="${left}" y1="${y}" x2="${W-right}" y2="${y}" stroke="#aeb4bb" stroke-dasharray="5 5" stroke-width="1.5"/><text x="${left-9}" y="${y+5}" font-size="17" text-anchor="end">${val}</text>`;
+  }
+  counts.forEach((n,i)=>{
+    const x=left+slot*i+(slot-barW)/2,h=n/maxY*plotH,y=top+plotH-h;
+    if(n>0){
+      svg+=`<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="5" fill="${BP_LEVELS[i].color}"/>`;
+      svg+=`<text x="${x+barW/2}" y="${Math.max(top+14,y-7)}" font-size="16" font-weight="700" text-anchor="middle">${n}</text>`;
+    }
+    svg+=`<text x="${left+slot*i+slot/2}" y="${H-24}" font-size="16" text-anchor="middle">${labels[i]}</text>`;
+  });
+  svg+='</svg>';
+  return svg;
+}
+function renderStats(){
+  const {from,to}=dateRange(statsRange),readings=collectReadings().filter(r=>r.date>=from&&r.date<=to);
+  const title=statsRange==='week'?'直近7日':statsRange==='month'?'今月':'全期間';
+  const h=`<section class="card">
+    <h2>📊 血圧の統計</h2>
+    <div class="avg-circles">
+      <div class="avg-circle s"><small>平均</small><strong>${meanField(readings,'s')}</strong><span>収縮期</span></div>
+      <div class="avg-circle d"><small>平均</small><strong>${meanField(readings,'d')}</strong><span>拡張期</span></div>
+      <div class="avg-circle p"><small>平均</small><strong>${meanField(readings,'p')}</strong><span>脈拍</span></div>
+    </div>
+    <div class="range-tabs" role="group" aria-label="集計期間">
+      <button data-range="week" class="${statsRange==='week'?'active':''}">週</button>
+      <button data-range="month" class="${statsRange==='month'?'active':''}">月</button>
+      <button data-range="all" class="${statsRange==='all'?'active':''}">全体</button>
+    </div>
+    <p class="hint" style="text-align:center">${title}　測定 ${readings.length}件（${from} ～ ${to}）</p>
+  </section>
+  <section class="card chart-card">
+    <h2 class="chart-title">血圧区分ごとの測定回数</h2>
+    ${renderCategoryChart(readings)}
+    <p class="chart-caption">最高血圧・最低血圧のうち、高い区分を1件として集計</p>
+  </section>
+  <section class="card"><h2>区分の目安</h2><div class="legend">
+    <span>🟦 低血圧：90未満 / 60未満</span><span>🟩 正常：90–120 / 60–80</span><span>🟨 前段階：121–140 / 81–90</span><span>🟧 1期：141–160 / 91–100</span><span>🟥 2期：160超 / 100超</span>
+  </div><p class="hint">このグラフは記録の振り返り用です。診断や治療方針の判断には使用せず、医療機関の基準に従ってください。</p></section>`;
+  $('#view').innerHTML=h;
+}
+function renderSettings(){
+  $('#view').innerHTML=`<div class="settings-screen"><section class="welcome"><div><span class="welcome-tag">アプリの管理</span><h2>設定・データ管理</h2><p>入力項目、CSV出力、バックアップ</p></div></section>
+    <section class="card"><h2>⚙️ 項目設定・入力補助</h2><p class="hint">血圧以外の記録項目や、入力候補の設定を変更できます。</p><button class="btn block" data-act="openSettings">設定を開く</button></section>
+    <section class="card"><h2>💾 データの保存</h2><p class="hint">CSV出力とバックアップ・復元は設定画面から利用できます。機種変更前にはバックアップを保存してください。</p><button class="btn ghost block" data-act="openCsvSettings">CSV・バックアップを開く</button></section>
+  </div>`;
+}
+function setTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('#bottomNav [data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  renderMain();
+}
+function renderMain(){
+  document.querySelectorAll('#bottomNav [data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===currentTab));
+  if(currentTab==='records')renderCal();
+  else if(currentTab==='stats')renderStats();
+  else if(currentTab==='settings')renderSettings();
+  else renderInput();
 }
 
 /* ---------- 入力 ---------- */
@@ -540,7 +810,7 @@ function saveSheet(){
   if(!save())return;
   const d=parse(cur);calY=d.getFullYear();calM=d.getMonth();
   closeSheet();
-  renderCal();
+  renderMain();
   toast('保存しました');
 }
 function renderSheet(){
@@ -550,6 +820,13 @@ function renderSheet(){
    <div class="dc"><input type="date" id="dateIn" value="${cur}"><span class="wd">${WD[d.getDay()]}曜</span></div>
    <button class="ib" data-act="nextDay" aria-label="次の日">▶</button></div>
    <div style="text-align:right;margin-bottom:8px"><button class="sm" data-act="today">今日にする</button></div>`;
+  if(rec.entries&&rec.entries.length){
+    h+='<section class="card"><h2>♥ 個別測定の記録</h2><p class="hint">削除した場合は、画面下の「保存する」を押すと反映されます。</p>';
+    rec.entries.forEach((e,i)=>{
+      h+=`<div class="recent-row"><div><small>${esc(e.time||'時刻未設定')}　${esc(e.tag||'')}</small><strong>${esc(e.s??'-')} / ${esc(e.d??'-')} mmHg</strong>　${esc(e.p??'-')} bpm</div><button class="sm" data-act="removeEntry" data-id="${esc(e.id||String(i))}" style="color:var(--danger)">削除</button></div>`;
+    });
+    h+='</section>';
+  }
   const others=[];
   for(const it of state.items){
     if(!it.form)continue;
@@ -651,6 +928,8 @@ function buildCols(){
   for(const it of state.items.filter(i=>i.type!=='bp'))
     add('入力日時',`vt_${it.id}`,`${it.name}_入力日時`,(dt,r)=>r&&r.vt[it.id]||'',false);
   add('入力日時','saved','最終保存日時',(dt,r)=>r&&r.saved||'',true);
+  add('追加測定','entry_count','追加測定件数',(dt,r)=>r&&r.entries?r.entries.length:0,true);
+  add('追加測定','entry_list','追加測定一覧',(dt,r)=>r&&r.entries?r.entries.map(e=>`${e.time||''} ${e.s??''}/${e.d??''} 脈拍${e.p??''} ${e.tag||''}`.trim()).join(' | '):'',false);
   for(const it of state.items.filter(i=>i.type!=='bp')){
     const label=it.name+(it.type==='number'&&it.unit?`(${it.unit})`:'');
     add('その他',`v_${it.id}`,label,(dt,r)=>{
@@ -726,6 +1005,7 @@ function download(name,text,type){
 const view=$('#view');
 const bindBoth=(type,fn)=>{view.addEventListener(type,fn);cfgBody.addEventListener(type,fn)};
 $('#cfgBtn').addEventListener('click',()=>openCfg());
+$('#bottomNav').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)setTab(b.dataset.tab)});
 cfg.addEventListener('click',e=>{
   if(e.target===cfg){closeCfg();return}
   const t=e.target.closest('[data-ctab]');
@@ -734,6 +1014,10 @@ cfg.addEventListener('click',e=>{
 });
 
 bindBoth('click',async e=>{
+  const spin=e.target.closest('[data-spin]');
+  if(spin){spinEntry(spin.dataset.spin,+spin.dataset.delta);return}
+  const range=e.target.closest('[data-range]');
+  if(range){statsRange=range.dataset.range;renderStats();return}
   const cell=e.target.closest('.cell[data-date]');
   if(cell){openSheet(cell.dataset.date);return}
   const b=e.target.closest('[data-act]');
@@ -741,6 +1025,9 @@ bindBoth('click',async e=>{
   const act=b.dataset.act;
   switch(act){
     case 'openToday':openSheet(today);break;
+    case 'saveEntry':saveEntry();break;
+    case 'openSettings':openCfg('items');break;
+    case 'openCsvSettings':openCfg('csv');break;
     case 'prevM':calM--;if(calM<0){calM=11;calY--}renderCal();break;
     case 'nextM':calM++;if(calM>11){calM=0;calY++}renderCal();break;
     case 'thisM':{const n=new Date();calY=n.getFullYear();calM=n.getMonth();renderCal();break}
@@ -783,6 +1070,7 @@ bindBoth('click',async e=>{
 
 bindBoth('input',e=>{
   const t=e.target;
+  if(t.dataset.entry){updateEntryPreview();return}
   if(t.dataset.def){state.defaults[t.dataset.def]=t.value;save()}
   else if(t.dataset.ie){
     const it=state.items.find(i=>i.id===t.closest('.item').dataset.id);
@@ -837,9 +1125,16 @@ sheet.addEventListener('click',async e=>{
     case 'delDay':
       if(await ask(`${cur} の保存済みの記録を削除しますか？`,'削除する')){
         delete state.records[cur];save();
-        closeSheet();renderCal();toast('削除しました');
+        closeSheet();renderMain();toast('削除しました');
       }
       break;
+    case 'removeEntry':{
+      const idx=draft.entries.findIndex((x,i)=>(x.id||String(i))===b.dataset.id);
+      if(idx>=0&&await ask('この測定記録を削除しますか？','削除する')){
+        draft.entries.splice(idx,1);renderSheet();toast('削除予定です。「保存する」で確定します');
+      }
+      break;
+    }
     case 'commitSugg':{
       const k=b.dataset.k;
       sbody.querySelectorAll(`input.sugg[data-bp="${k}"]`).forEach(x=>{draft[k][+x.dataset.i][x.dataset.f]=x.value});
@@ -904,7 +1199,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&$('#modal').hidden){if(sheetOpen)requestClose(false);else if(cfgOpen)closeCfg()}
 });
 
-renderCal();
+renderMain();
 
 /* ---------- PWA：オフライン対応・データ保護 ---------- */
 if('serviceWorker' in navigator&&location.protocol.startsWith('http')){

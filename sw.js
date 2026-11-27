@@ -1,6 +1,6 @@
-/* 血圧記録ノート Service Worker（v3：入力日時の記録に対応）
+/* 血圧記録ノート Service Worker（v4：個別測定・統計画面に対応）
    アプリを更新したら CACHE の番号を上げてください。 */
-const CACHE = 'bp-note-v3';
+const CACHE = 'bp-note-v4';
 const FILES = [
   './',
   './index.html',
