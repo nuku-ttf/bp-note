@@ -79,6 +79,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--pri);border-colo
 .fld span{display:block;font-size:11px;color:var(--sub);margin-bottom:2px}
 .fld input{padding:10px 6px;text-align:center;font-size:18px}
 input.sugg{color:var(--sub);font-style:italic;background:var(--pri-weak)}
+.mtime{display:block;font-size:10px;font-weight:600;color:var(--sub);line-height:1.2}
 .sugghint{font-size:12px;color:var(--pri);margin:8px 0 0}
 .avg{background:var(--pri-weak);border-radius:10px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:6px}
 .avg .lb{font-size:13px;font-weight:700;color:var(--pri)}
@@ -135,7 +136,7 @@ input.sugg{color:var(--sub);font-style:italic;background:var(--pri-weak)}
 .sfoot .btn.save{flex:2}
 .note{font-size:12px;color:var(--sub);text-align:center;margin:10px 0}
 
-/* Pop theme: layout and visual styling only */
+/* Pop theme */
 :root{
   color-scheme:light;--bg:#faf6ff;--card:#fff;--text:#2c2342;--sub:#625875;
   --line:#e6dcef;--pri:#6542c4;--pri-weak:#eee6ff;--danger:#a42d53;
@@ -297,6 +298,7 @@ const KEY='bp_record_note_v1';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad=n=>String(n).padStart(2,'0');
+const nowStr=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
 const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const parse=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
 const WD=['日','月','火','水','木','金','土'];
@@ -341,6 +343,7 @@ function fixRec(r){ // 古いデータ・欠損の補正
   r=r||{};
   for(const k of['am','pm']){r[k]=Array.isArray(r[k])?r[k]:b[k];while(r[k].length<2)r[k].push(blankM())}
   r.v=r.v||{};
+  r.vt=r.vt||{}; // その他項目の入力日時
   return r;
 }
 function avgOf(list){
@@ -520,8 +523,19 @@ async function changeDate(date){
   }
   renderSheet();sbody.scrollTop=0;
 }
+/* 入力日時の記録：最初に値を入れた日時を残す（修正しても変えない。消したら削除） */
+function stampBP(m){
+  const has=['s','d','p'].some(f=>m[f]!==''&&m[f]!=null);
+  if(!has)delete m.t;else if(!m.t)m.t=nowStr();
+}
+function stampV(id,force){
+  const v=draft.v[id];
+  if(v===''||v==null)delete draft.vt[id];
+  else if(force||!draft.vt[id])draft.vt[id]=nowStr();
+}
 function saveSheet(){
   const r=clone(draft);
+  if(JSON.stringify(r)!==draftOrig)r.saved=nowStr(); // 最終保存日時
   if(isEmpty(r))delete state.records[cur];else state.records[cur]=r;
   if(!save())return;
   const d=parse(cur);calY=d.getFullYear();calM=d.getMonth();
@@ -545,7 +559,8 @@ function renderSheet(){
       const sg=suggestBP(k);let hasS=false;
       for(let i=0;i<2;i++){
         const rowEmpty=FIELDS.every(([f])=>rec[k][i][f]===''||rec[k][i][f]==null);
-        h+=`<div class="mrow"><div class="mlabel">${i+1}回目</div>`;
+        const tt=rec[k][i].t?rec[k][i].t.slice(11):'';
+        h+=`<div class="mrow"><div class="mlabel">${i+1}回目<span class="mtime" data-mt="${k}${i}">${tt?'🕒'+tt:''}</span></div>`;
         for(const [f,short,long] of FIELDS){
           const useS=rowEmpty&&sg&&sg[f]!=='';
           if(useS)hasS=true;
@@ -629,6 +644,13 @@ function buildCols(){
     [0,1].forEach(i=>FIELDS.forEach(([f,l])=>add(g,`${k}_${i+1}_${f}`,`${p}${i+1}回目_${l}`,(dt,r)=>r?r[k][i][f]:'',false)));
     FIELDS.forEach(([f,l])=>add(g,`${k}_avg_${f}`,`${p}平均_${l}`,(dt,r)=>{const a=r&&avgOf(r[k]);return a&&a[f]!=null?a[f]:''},true));
   }
+  for(const it of state.items.filter(i=>i.type==='bp')){
+    const k=bpKey(it),p=k==='am'?'朝':'夜';
+    [0,1].forEach(i=>add('入力日時',`${k}_${i+1}_t`,`${p}${i+1}回目_入力日時`,(dt,r)=>r&&r[k][i].t||'',true));
+  }
+  for(const it of state.items.filter(i=>i.type!=='bp'))
+    add('入力日時',`vt_${it.id}`,`${it.name}_入力日時`,(dt,r)=>r&&r.vt[it.id]||'',false);
+  add('入力日時','saved','最終保存日時',(dt,r)=>r&&r.saved||'',true);
   for(const it of state.items.filter(i=>i.type!=='bp')){
     const label=it.name+(it.type==='number'&&it.unit?`(${it.unit})`:'');
     add('その他',`v_${it.id}`,label,(dt,r)=>{
@@ -736,7 +758,7 @@ bindBoth('click',async e=>{
       if(!it)break;
       if(await ask(`「${it.name}」を削除しますか？\n入力済みのデータも削除されます。`,'削除する')){
         state.items=state.items.filter(i=>i.id!==it.id);
-        for(const k in state.records){if(state.records[k].v)delete state.records[k].v[it.id];if(isEmpty(fixRec(state.records[k])))delete state.records[k]}
+        for(const k in state.records){if(state.records[k].v)delete state.records[k].v[it.id];if(state.records[k].vt)delete state.records[k].vt[it.id];if(isEmpty(fixRec(state.records[k])))delete state.records[k]}
         save();renderItems();
       }
       break;
@@ -799,6 +821,7 @@ sheet.addEventListener('click',async e=>{
   if(seg){
     const box=seg.parentElement,id=box.dataset.v,nv=seg.dataset.seg==='true';
     if(draft.v[id]===nv)delete draft.v[id];else draft.v[id]=nv;
+    stampV(id,true);
     box.querySelectorAll('button').forEach(x=>x.classList.toggle('on',draft.v[id]!==undefined&&String(draft.v[id])===x.dataset.seg));
     updDirty();return;
   }
@@ -820,12 +843,14 @@ sheet.addEventListener('click',async e=>{
     case 'commitSugg':{
       const k=b.dataset.k;
       sbody.querySelectorAll(`input.sugg[data-bp="${k}"]`).forEach(x=>{draft[k][+x.dataset.i][x.dataset.f]=x.value});
+      draft[k].forEach(stampBP);
       renderSheet();toast('候補値を使います（「保存する」で記録）');break;
     }
     case 'commitNum':{
       const x=sbody.querySelector(`input[data-v="${b.dataset.id}"]`);
       if(!x||x.value==='')break;
       draft.v[b.dataset.id]=x.value;
+      stampV(b.dataset.id);
       renderSheet();toast('この値を使います（「保存する」で記録）');break;
     }
   }
@@ -836,7 +861,11 @@ sheet.addEventListener('input',e=>{
   if(t.dataset.bp){
     const k=t.dataset.bp;
     const row=[...sbody.querySelectorAll(`input[data-bp="${k}"][data-i="${t.dataset.i}"]`)];
-    row.forEach(x=>{draft[k][+t.dataset.i][x.dataset.f]=x.value;x.classList.remove('sugg')});
+    const m=draft[k][+t.dataset.i];
+    row.forEach(x=>{m[x.dataset.f]=x.value;x.classList.remove('sugg')});
+    stampBP(m);
+    const mt=sbody.querySelector(`[data-mt="${k}${t.dataset.i}"]`);
+    if(mt)mt.textContent=m.t?'🕒'+m.t.slice(11):'';
     if(!sbody.querySelector(`input.sugg[data-bp="${k}"]`)){
       sbody.querySelectorAll(`[data-act="commitSugg"][data-k="${k}"],[data-sh="${k}"]`).forEach(x=>x.remove());
     }
@@ -845,6 +874,7 @@ sheet.addEventListener('input',e=>{
     box.innerHTML=avgHTML(draft[k]);
   }else if(t.dataset.v){
     if(t.value==='')delete draft.v[t.dataset.v];else draft.v[t.dataset.v]=t.value;
+    stampV(t.dataset.v);
     if(t.classList.contains('sugg')){
       t.classList.remove('sugg');
       const w=t.closest('.orow');

@@ -1,6 +1,6 @@
-/* 血圧記録ノート Service Worker
-   アプリを更新したら CACHE の番号（v1 → v2 …）を上げてください。 */
-const CACHE = 'bp-note-v1';
+/* 血圧記録ノート Service Worker（v3：入力日時の記録に対応）
+   アプリを更新したら CACHE の番号を上げてください。 */
+const CACHE = 'bp-note-v3';
 const FILES = [
   './',
   './index.html',
@@ -24,13 +24,14 @@ self.addEventListener('activate', e => {
   );
 });
 
-// 画面(HTML)は「ネット優先・圏外ならキャッシュ」、それ以外は「キャッシュ優先」
+// 画面(HTML)：ネット優先。ただし 404 などエラー応答のときは保存済みの画面を使い、上書きもしない
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   if (req.mode === 'navigate') {
     e.respondWith(
       fetch(req).then(res => {
+        if (!res.ok) return caches.match('./index.html').then(hit => hit || res);
         const copy = res.clone();
         caches.open(CACHE).then(c => c.put('./index.html', copy));
         return res;
@@ -38,5 +39,6 @@ self.addEventListener('fetch', e => {
     );
     return;
   }
+  // 画像など：保存済み優先
   e.respondWith(caches.match(req).then(hit => hit || fetch(req)));
 });
