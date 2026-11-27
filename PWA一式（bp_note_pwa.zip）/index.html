@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffd1e7">
+<title>血圧記録ノート</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="血圧ノート">
+<style>
+:root{
+  --bg:#f3f6fb;--card:#ffffff;--text:#1f2937;--sub:#6b7280;--line:#e5e7eb;
+  --pri:#2563eb;--pri-weak:#dbeafe;--danger:#dc2626;--am:#f59e0b;--pm:#6366f1;--ok:#16a34a;--input:#f9fafb;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0f172a;--card:#1e293b;--text:#e5e7eb;--sub:#94a3b8;--line:#334155;--pri:#60a5fa;--pri-weak:#1e3a5f;--danger:#f87171;--input:#0f172a;}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Noto Sans JP",Meiryo,sans-serif;font-size:16px;line-height:1.5}
+header{position:sticky;top:0;z-index:10;background:var(--pri);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:18px;margin:0}
+#stat{font-size:13px;opacity:0;transition:opacity .3s}
+#stat.on{opacity:1}
+main{max-width:640px;margin:0 auto;padding:12px 10px calc(28px + env(safe-area-inset-bottom))}
+.hbtn{border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700;min-height:40px;cursor:pointer;white-space:nowrap}
+.hbtn:active{background:rgba(255,255,255,.35)}
+#cfg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}
+@media (min-width:700px){#cfg{align-items:center}}
+.ctabs{display:flex;background:var(--card);border-bottom:1px solid var(--line)}
+.ctabs button{flex:1;border:0;background:none;color:var(--sub);padding:12px 4px;font-size:15px;font-weight:700;min-height:46px;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit}
+.ctabs button.on{color:var(--pri);border-bottom-color:var(--pri)}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card h2{font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+.card h3{font-size:14px;margin:12px 0 6px;color:var(--sub)}
+.hint{font-size:12px;color:var(--sub);margin:6px 0 0}
+button{font-family:inherit}
+.btn{border:0;border-radius:10px;padding:12px 16px;font-size:16px;font-weight:600;background:var(--pri);color:#fff;min-height:46px;cursor:pointer}
+.btn.ghost{background:var(--pri-weak);color:var(--pri)}
+.btn.danger{background:var(--danger)}
+.btn.block{width:100%}
+.sm{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:8px;padding:6px 12px;font-size:13px;min-height:34px;cursor:pointer}
+.ib{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;width:48px;height:48px;font-size:18px;cursor:pointer}
+input[type=number],input[type=text],input[type=date],select,textarea{width:100%;font-size:16px;font-family:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--input);color:var(--text);min-height:46px}
+textarea{resize:vertical;min-height:64px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--pri);border-color:transparent}
+
+/* calendar */
+.calhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.calhead .ttl{font-size:18px;font-weight:700;flex:1;text-align:center}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.dow{text-align:center;font-size:12px;font-weight:700;padding:4px 0;color:var(--sub)}
+.dow.sun{color:#ef4444}.dow.sat{color:#3b82f6}
+.cell{min-height:76px;background:var(--card);border-radius:6px;padding:2px 3px;overflow:hidden;cursor:pointer;border:2px solid transparent;min-width:0}
+.cell.blank{background:transparent;cursor:default}
+.cell.today{border-color:var(--pri)}
+.cell .dn{font-size:12px;font-weight:700}
+.cell.sun .dn{color:#ef4444}.cell.sat .dn{color:#3b82f6}
+.ln{font-size:10px;line-height:1.3;white-space:nowrap;overflow:hidden}
+.ln.hi{color:var(--danger);font-weight:700}
+.ic{display:flex;flex-wrap:wrap;gap:0 1px;font-size:14px;line-height:1.25}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--sub);margin-top:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--input);border-radius:10px;padding:8px 10px}
+.stat b{display:block;font-size:18px}
+.stat small{color:var(--sub);font-size:12px}
+@media (min-width:480px){.ln{font-size:11px}.cell{min-height:92px}}
+
+/* input */
+.datebar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.datebar .dc{flex:1;position:relative}
+.datebar .wd{position:absolute;right:42px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--sub);pointer-events:none}
+.mrow{display:grid;grid-template-columns:48px repeat(3,1fr);gap:6px;align-items:end;margin-bottom:8px}
+.mlabel{font-size:13px;font-weight:700;color:var(--sub);padding-bottom:12px}
+.fld span{display:block;font-size:11px;color:var(--sub);margin-bottom:2px}
+.fld input{padding:10px 6px;text-align:center;font-size:18px}
+input.sugg{color:var(--sub);font-style:italic;background:var(--pri-weak)}
+.sugghint{font-size:12px;color:var(--pri);margin:8px 0 0}
+.avg{background:var(--pri-weak);border-radius:10px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.avg .lb{font-size:13px;font-weight:700;color:var(--pri)}
+.avg .vl{font-size:20px;font-weight:700}
+.avg .vl small{font-size:12px;font-weight:400;color:var(--sub)}
+.avg.hi .vl{color:var(--danger)}
+.am h2{color:var(--am)}.pm h2{color:var(--pm)}
+.orow{margin-bottom:12px}
+.orow label.t{display:block;font-size:14px;font-weight:700;margin-bottom:4px}
+.unitw{display:flex;align-items:center;gap:8px}
+.unitw span{color:var(--sub);min-width:32px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--input);color:var(--text);padding:10px 22px;font-size:16px;min-height:46px;cursor:pointer}
+.seg button.on{background:var(--pri);color:#fff;font-weight:700}
+
+/* items */
+.item{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px}
+.item .top{display:flex;gap:8px;margin-bottom:8px}
+.item .top .ico{width:64px;text-align:center;font-size:20px;padding:6px}
+.chk{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:15px;cursor:pointer}
+.chk input{width:22px;height:22px;flex:none;accent-color:var(--pri)}
+.chk.dis{opacity:.4}
+.tag{display:inline-block;font-size:11px;background:var(--pri-weak);color:var(--pri);border-radius:6px;padding:1px 8px;margin-left:6px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.presets button{font-size:20px;width:42px;height:42px;border:1px solid var(--line);background:var(--card);border-radius:10px;cursor:pointer}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lbl{font-size:12px;color:var(--sub);margin:8px 0 2px;display:block}
+
+/* csv */
+.grp{margin-bottom:10px}
+.grp .gh{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.grp .gh b{font-size:14px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+.cols .chk{padding:5px 0;font-size:14px}
+
+/* modal / toast */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.mbox{background:var(--card);border-radius:14px;padding:18px;max-width:340px;width:100%}
+.mbox p{margin:0 0 14px;white-space:pre-line}
+.mbtns{display:flex;gap:8px}.mbtns .btn{flex:1}
+#toast{z-index:300!important;position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#111827;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:90;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90%;text-align:center}
+#toast.on{opacity:.95}
+.entry{margin-bottom:12px;font-size:18px}
+#sheet{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}
+.sbox{background:var(--bg);width:100%;max-width:640px;height:94vh;height:94dvh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -4px 24px rgba(0,0,0,.3)}
+@media (min-width:700px){#sheet{align-items:center}.sbox{border-radius:18px;height:90vh}}
+.shead{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--card);border-bottom:1px solid var(--line)}
+.shead .ib{width:42px;height:42px;flex:none}
+.shead .sttl{flex:1;font-size:17px;font-weight:700}
+.dirty{font-size:12px;color:var(--danger);font-weight:700;white-space:nowrap}
+.sbody{flex:1;overflow-y:auto;padding:12px 10px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.sfoot{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line)}
+.sfoot .btn{flex:1}
+.sfoot .btn.save{flex:2}
+.note{font-size:12px;color:var(--sub);text-align:center;margin:10px 0}
+
+/* Pop theme: layout and visual styling only */
+:root{
+  color-scheme:light;--bg:#faf6ff;--card:#fff;--text:#2c2342;--sub:#625875;
+  --line:#e6dcef;--pri:#6542c4;--pri-weak:#eee6ff;--danger:#a42d53;
+  --am:#86501a;--pm:#5036a0;--input:#faf7ff;--pink:#ffe4ef;
+  --peach:#fff0d9;--mint:#def6eb;--sky:#e5efff;--shadow:0 10px 24px #45247013;
+  --hero-a:#fff0dc;--hero-b:#f2e7ff;--hero-c:#ffd9e9;--veil:#29163885;
+}
+@media (prefers-color-scheme:dark){
+  :root{color-scheme:dark;--bg:#1d172b;--card:#291f3a;--text:#fbf5ff;--sub:#d0c3e1;
+  --line:#49395f;--pri:#ceb8ff;--pri-weak:#3d2c61;--danger:#ffabc5;
+  --am:#ffce90;--pm:#dfcaff;--input:#2f2443;--pink:#4c2941;
+  --peach:#493320;--mint:#1f463d;--sky:#273955;--shadow:0 10px 24px #0e071e54;
+  --hero-a:#442e38;--hero-b:#33254f;--hero-c:#4b2852;--veil:#11091ab8;}
+}
+html,body{background:var(--bg)}
+body{font-family:ui-rounded,"Hiragino Maru Gothic ProN",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",Meiryo,sans-serif}
+header{display:block;background:linear-gradient(112deg,#5832ac,#733fc0 62%,#8a439d);box-shadow:0 4px 14px #43226831}
+.head-inner{max-width:722px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
+header h1{display:flex;gap:8px;align-items:center;font-size:clamp(14px,4.2vw,20px);font-weight:850;line-height:1.25}
+.brand-mark{height:34px;width:34px;flex:none;display:grid;place-items:center;border-radius:12px;background:#ffe4ef;color:#7a2c6e;font-size:24px;font-weight:800}
+.hbtn{border-radius:999px;min-height:44px;background:#fff2;font-size:clamp(12px,3.55vw,14px)}
+main{max-width:740px;padding:14px 10px calc(28px + env(safe-area-inset-bottom))}
+.welcome{display:flex;gap:10px;justify-content:space-between;align-items:center;position:relative;isolation:isolate;overflow:hidden;padding:15px clamp(12px,4vw,25px);margin-bottom:13px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(115deg,var(--hero-a),var(--hero-b) 56%,var(--hero-c));box-shadow:var(--shadow)}
+.welcome::after{content:"";position:absolute;z-index:-1;right:4%;top:-54px;width:170px;height:170px;border:18px solid #fff3;border-radius:50%;box-shadow:0 0 0 15px #fff2;pointer-events:none}
+.welcome-tag{display:inline-block;font-size:10px;font-weight:800;color:var(--pri);letter-spacing:.04em}
+.welcome h2{margin:2px 0 0;font-size:clamp(19px,5.6vw,27px);line-height:1.25;font-weight:850}
+.welcome p{margin:4px 0 0;color:var(--sub);font-size:13px;font-weight:650}
+.btn{background:linear-gradient(108deg,#603cc0,#7939a9);border-radius:15px;font-weight:750;box-shadow:0 3px 0 #44267c}
+.btn.ghost{box-shadow:none;background:var(--pri-weak);color:var(--pri)}
+.btn.danger{background:#a42d53;box-shadow:none}
+.entry{margin:0;white-space:nowrap;font-size:clamp(14px,4vw,17px);padding-inline:clamp(10px,4vw,20px);min-height:49px}
+.btn:active,.ib:active,.sm:active{transform:translateY(1px)}
+button:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.hbtn:focus-visible{outline-color:#fff}
+.calendar-panel,.card,.item{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.calendar-panel{padding:9px 5px 12px}
+.calhead{padding-inline:5px;margin-bottom:4px}
+.calhead .ttl{font-size:clamp(20px,5.7vw,27px);font-weight:850;letter-spacing:.025em}
+.ib,.sm{border-radius:12px;background:var(--pri-weak);color:var(--pri)}
+.ib{font-size:22px;font-weight:750}
+.calhead .ib{width:44px;height:44px;font-size:28px;line-height:1}
+[data-act="thisM"]{margin-right:5px;border-radius:999px}
+.cal{gap:3px}
+.dow{background:var(--input);border-radius:8px;padding:5px 0}
+.dow.sun,.cell.sun .dn{color:var(--danger)}
+.dow.sat,.cell.sat .dn{color:var(--pm)}
+.dow.sun{background:var(--pink)}.dow.sat{background:var(--sky)}
+.cell{appearance:none;display:flex;flex-direction:column;align-items:stretch;text-align:left;color:var(--text);min-height:79px;padding:2px 1px 3px;border:1px solid var(--line);border-radius:9px;background:var(--input);font-variant-numeric:tabular-nums;}
+.cell.blank{border-color:transparent}.cell.recorded{background:var(--card);border-color:var(--line)}
+.cell .dn{display:grid;place-items:center;min-width:20px;height:20px;align-self:flex-start;border-radius:8px;line-height:1}
+.cell.today{border-color:var(--pri);background:var(--pri-weak);box-shadow:inset 0 0 0 1px var(--pri)}
+.cell.today .dn{background:#6542c4;color:white}
+.reading{display:flex;align-items:center;gap:2px;padding:0 1px;border-radius:5px;margin:1px 0;color:var(--text);font-size:clamp(9px,2.7vw,11px);font-weight:750;line-height:1.28}
+.reading.am{background:var(--peach)}.reading.pm{background:var(--pri-weak)}.reading.custom{background:var(--mint)}
+.reading.hi{color:var(--danger)}
+.reading-mark{line-height:1.1}.reading-value{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.ic{font-size:13px;margin-top:1px}
+.legend{gap:4px;margin:7px 3px 0;font-size:11px}
+.legend>span{border-radius:999px;padding:2px 6px;background:var(--input)}
+.stats .stat{border-radius:15px;padding:10px;background:var(--peach)}
+.stats .stat:nth-child(2){background:var(--pri-weak)}.stats .stat:nth-child(3){background:var(--pink)}.stats .stat:nth-child(4){background:var(--mint)}
+.stats .stat b{font-variant-numeric:tabular-nums;font-weight:850}
+#cfg,#sheet,#modal{background:var(--veil)}
+.sbox{border-radius:25px 25px 0 0;border:1px solid var(--line)}
+.shead{background:linear-gradient(105deg,var(--pink),var(--pri-weak));padding-block:11px}
+.sbody{min-height:0}.sfoot{flex-shrink:0}
+.ctabs{gap:6px;padding:6px}.ctabs button{border:0;border-radius:12px}.ctabs button.on{background:var(--pri-weak)}
+.card.am{border-top:4px solid #f4b65d}.card.pm{border-top:4px solid #9a7be4}
+.card.am .avg{background:var(--peach)}
+.card h2{font-weight:850}
+.mrow{grid-template-columns:42px repeat(3,minmax(0,1fr))}
+.datebar .dc,.unitw input,.grid2>*{min-width:0}
+.unitw .sm{flex:none}.seg button.on{background:#6542c4;color:#fff}
+#toast{background:#3a245b}
+@media (max-width:459px){
+  .reading{flex-direction:column;justify-content:center;gap:0;min-height:22px;text-align:center}
+  .reading-mark{font-size:9px}.reading-value{max-width:100%}
+  .cell:has(.reading+.reading){min-height:85px}
+}
+@media (min-width:460px){
+  main{padding-inline:16px}.calendar-panel{padding:12px}.cal{gap:5px}
+  .cell{min-height:94px;padding:4px;border-radius:11px}.reading{padding:2px 3px}
+}
+@media (min-width:700px){.sbox{border-radius:25px}}
+@media (hover:hover){.cell[data-date]:hover{border-color:var(--pri);background:var(--pri-weak)}.btn:hover,.hbtn:hover{filter:brightness(1.09)}}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+
+
+/* Candy color theme */
+:root{
+ --bg:#f4fffc;--card:#fff;--text:#21334c;--sub:#4c5b72;--line:#d5e6ee;
+ --pri:#284db1;--pri-weak:#e4edff;--danger:#a41f50;--am:#765000;--pm:#3447a5;
+ --input:#f4f9ff;--pink:#ffd9eb;--peach:#ffec96;--mint:#b9f1d7;--sky:#c8ecff;
+ --hero-a:#fff3a7;--hero-b:#ffd7e8;--hero-c:#c1f3eb;--veil:#18395f80;
+ --shadow:0 6px 18px #20486b16;--today:#1554bd;--surface-accent:#e8fff6;
+ --header-a:#fff0a1;--header-b:#ffc7e2;--header-c:#a9f1e8;--header-ink:#21334c;
+ --dot:#fff9;
+}
+@media (prefers-color-scheme:dark){
+ :root{
+  --bg:#18263c;--card:#23354f;--text:#f7fbff;--sub:#d0def0;--line:#455b77;
+  --pri:#b9d1ff;--pri-weak:#304780;--danger:#ffb1d0;--am:#ffe18c;--pm:#c5d5ff;
+  --input:#293d59;--pink:#623955;--peach:#594820;--mint:#24534c;--sky:#294e6f;
+  --hero-a:#55451f;--hero-b:#604062;--hero-c:#235650;--veil:#071524b0;
+  --shadow:0 6px 18px #00132b48;--today:#2356ac;--surface-accent:#294e4e;
+  --dot:#fff2;
+ }
+}
+body{background:var(--bg)}
+header{background:linear-gradient(108deg,var(--header-a),var(--header-b) 49%,var(--header-c));color:var(--header-ink);box-shadow:0 4px 14px #23536a26;border-bottom:1px solid #fff9}
+.brand-mark{background:#ff508f;color:#30193a;box-shadow:2px 2px 0 #fff9}
+.hbtn{color:#21334c;background:#fff9;border-color:#fff;box-shadow:0 2px 0 #243a5a20}
+.hbtn:active{background:#fff}.hbtn:focus-visible{outline-color:#244aaa}
+.welcome{background:linear-gradient(112deg,var(--hero-a) 6%,var(--hero-b) 54%,var(--hero-c) 100%);border-color:var(--line)}
+.welcome::after{border-color:var(--dot);box-shadow:0 0 0 13px var(--dot)}
+.welcome-tag{background:var(--card);border-radius:999px;padding:2px 8px}
+.btn{background:linear-gradient(112deg,#244dc1,#1757b8);box-shadow:0 3px 0 #173888;color:#fff}
+.btn.ghost{background:var(--pri-weak);color:var(--pri);box-shadow:none}.btn.danger{background:#a41f50;box-shadow:none}
+.entry{box-shadow:0 3px 0 #173888,0 6px 14px #174db733}
+.calendar-panel{border-top:4px solid #45c8b3}
+.calhead .ib{background:var(--sky)}
+[data-act="thisM"]{background:var(--mint);color:var(--text)}
+.dow:not(.sun):not(.sat){background:var(--surface-accent)}
+.cell.today{border-color:var(--today);background:var(--pri-weak);box-shadow:inset 0 0 0 1px var(--today)}
+.cell.today .dn{background:var(--today);color:white}
+.reading.am{background:var(--peach)}.reading.pm{background:var(--sky)}.reading.custom{background:var(--mint)}
+.stats .stat:nth-child(2){background:var(--sky)}
+.shead{background:linear-gradient(105deg,var(--pink),var(--sky))}
+.shead .ib{background:var(--card)}
+.ctabs button.on{background:var(--mint);color:var(--text)}
+.card.am{border-top-color:#ffc344}.card.pm{border-top-color:#60baff}.card.pm .avg{background:var(--sky)}
+.card:has(.orow){border-top:4px solid #45c8b3}
+.seg button.on{background:#2452b6;color:#fff}
+#toast{background:#21334c}
+
+</style>
+</head>
+<body>
+<header><div class="head-inner"><h1 id="title"><span class="brand-mark" aria-hidden="true">♡</span>血圧記録ノート</h1><button class="hbtn" id="cfgBtn">⚙️ 設定・出力</button></div></header>
+<main id="view"></main>
+<div id="cfg" hidden role="dialog" aria-modal="true" aria-labelledby="ctitle"><div class="sbox">
+  <div class="shead"><button class="ib" data-cact="close" aria-label="閉じる">✕</button><div class="sttl" id="ctitle">設定・出力</div></div>
+  <div class="ctabs"><button data-ctab="items">⚙️ 項目設定</button><button data-ctab="csv">📤 CSV・保存</button></div>
+  <div class="sbody" id="cbody"></div>
+  <div class="sfoot"><button class="btn block" data-cact="close">閉じる</button></div>
+</div></div>
+<div id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sttl"><div class="sbox">
+  <div class="shead"><button class="ib" data-act="closeSheet" aria-label="閉じる">✕</button><div class="sttl" id="sttl">記録を入力</div><span class="dirty" id="dirty" hidden>● 未保存</span></div>
+  <div class="sbody" id="sbody"></div>
+  <div class="sfoot"><button class="btn ghost" data-act="cancelSheet">キャンセル</button><button class="btn save" data-act="saveSheet">💾 保存する</button></div>
+</div></div>
+<div id="modal" hidden></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ---------- 基本ユーティリティ ---------- */
+const KEY='bp_record_note_v1';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const WD=['日','月','火','水','木','金','土'];
+const num=x=>{const n=parseFloat(x);return isFinite(n)?n:null};
+const FIELDS=[['s','最高','最高血圧'],['d','最低','最低血圧'],['p','脈拍','脈拍']];
+
+const DEFAULT_ITEMS=[
+  {id:'bp_am',name:'朝の血圧',icon:'🌅',type:'bp',builtin:true,form:true,cal:true,val:true},
+  {id:'bp_pm',name:'夜の血圧',icon:'🌙',type:'bp',builtin:true,form:true,cal:true,val:true},
+  {id:'alcohol',name:'飲酒',icon:'🍺',type:'check',builtin:true,form:true,cal:true,val:false},
+  {id:'weight',name:'体重',icon:'⚖️',type:'number',unit:'kg',form:true,cal:true,val:false},
+  {id:'memo',name:'メモ',icon:'📝',type:'text',builtin:true,form:true,cal:true,val:false}
+];
+
+/* ---------- データ ---------- */
+function normalize(s){
+  if(!s||typeof s!=='object')s={};
+  if(!Array.isArray(s.items)||!s.items.length)s.items=JSON.parse(JSON.stringify(DEFAULT_ITEMS));
+  for(const b of DEFAULT_ITEMS.filter(x=>x.builtin)){
+    if(!s.items.some(i=>i.id===b.id))s.items.push(JSON.parse(JSON.stringify(b)));
+  }
+  s.records=s.records&&typeof s.records==='object'?s.records:{};
+  s.csvSel=s.csvSel||{};
+  if(s.assist===undefined)s.assist=true;
+  s.defaults=s.defaults||{s:'',d:'',p:''};
+  return s;
+}
+function load(){
+  let s=null;
+  try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  return normalize(s);
+}
+let state=load();
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(state));return true}
+  catch(e){toast('この環境では保存できません。ブラウザの設定をご確認ください');return false}
+}
+const blankM=()=>({s:'',d:'',p:''});
+const blank=()=>({am:[blankM(),blankM()],pm:[blankM(),blankM()],v:{}});
+function fixRec(r){ // 古いデータ・欠損の補正
+  const b=blank();
+  r=r||{};
+  for(const k of['am','pm']){r[k]=Array.isArray(r[k])?r[k]:b[k];while(r[k].length<2)r[k].push(blankM())}
+  r.v=r.v||{};
+  return r;
+}
+function avgOf(list){
+  const out={};let any=false;
+  for(const [f] of FIELDS){
+    const a=list.map(m=>num(m[f])).filter(x=>x!==null);
+    out[f]=a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
+    if(a.length)any=true;
+  }
+  return any?out:null;
+}
+function isEmpty(r){
+  const bpE=l=>l.every(m=>!m.s&&!m.d&&!m.p);
+  return bpE(r.am)&&bpE(r.pm)&&Object.values(r.v).every(x=>x===''||x==null);
+}
+const isHigh=a=>a&&((a.s!=null&&a.s>=135)||(a.d!=null&&a.d>=85));
+const bpKey=it=>it.id==='bp_am'?'am':'pm';
+
+/* ---------- UI状態 ---------- */
+const today=fmt(new Date());
+let cur=today;
+let calY=new Date().getFullYear(),calM=new Date().getMonth();
+let csvFrom=null,csvTo=today,csvEmptyDays=false;
+
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2200)}
+function ask(msg,okLabel){
+  return new Promise(res=>{
+    const m=$('#modal');
+    m.innerHTML=`<div class="mbox"><p>${esc(msg)}</p><div class="mbtns"><button class="btn ghost" id="mNo">キャンセル</button><button class="btn danger" id="mYes">${esc(okLabel||'OK')}</button></div></div>`;
+    m.hidden=false;
+    $('#mNo').onclick=()=>{m.hidden=true;res(false)};
+    $('#mYes').onclick=()=>{m.hidden=true;res(true)};
+  });
+}
+/* ---------- 設定・出力ポップアップ ---------- */
+const cfg=$('#cfg'),cfgBody=$('#cbody');
+let cfgOpen=false,cfgTab='items',cfgPushed=false;
+function setCfg(h){const k=cfgBody.scrollTop;cfgBody.innerHTML=h;cfgBody.scrollTop=k}
+function renderCfg(){
+  document.querySelectorAll('#cfg [data-ctab]').forEach(b=>b.classList.toggle('on',b.dataset.ctab===cfgTab));
+  if(cfgTab==='items')renderItems();else renderCsv();
+}
+function openCfg(t){
+  cfgTab=t||cfgTab;cfgOpen=true;cfg.hidden=false;document.body.style.overflow='hidden';
+  renderCfg();cfgBody.scrollTop=0;
+  try{history.pushState({cfg:1},'');cfgPushed=true}catch(e){cfgPushed=false}
+}
+function closeCfg(){
+  cfgOpen=false;cfg.hidden=true;document.body.style.overflow='';
+  if(cfgPushed){cfgPushed=false;skipPop=true;try{history.back()}catch(e){skipPop=false}}
+  renderCal(); // 設定の変更をカレンダーへ反映
+}
+
+/* ---------- カレンダー ---------- */
+function cellHTML(ds,dow){
+  const rec=state.records[ds]?fixRec(state.records[ds]):null;
+  let lines='',icons='';
+  if(rec){
+    for(const it of state.items){
+      if(!it.cal)continue;
+      const ic=esc(it.icon);
+      if(it.type==='bp'){
+        const a=avgOf(rec[bpKey(it)]);
+        if(!a)continue;
+        if(it.val&&(a.s!=null||a.d!=null)){
+          lines+=`<span class="ln reading ${bpKey(it)} ${isHigh(a)?'hi':''}" title="${esc(it.name)}"><span class="reading-mark">${ic}</span><span class="reading-value">${a.s??'-'}/${a.d??'-'}</span></span>`;
+        }else icons+=`<span>${ic}</span>`;
+      }else if(it.type==='check'){
+        if(rec.v[it.id]===true)icons+=`<span>${ic}</span>`;
+      }else if(it.type==='number'){
+        const v=rec.v[it.id];
+        if(v===''||v==null)continue;
+        if(it.val)lines+=`<span class="ln reading custom" title="${esc(it.name)}"><span class="reading-mark">${ic}</span><span class="reading-value">${esc(v)}</span></span>`;else icons+=`<span>${ic}</span>`;
+      }else{
+        if(rec.v[it.id])icons+=`<span>${ic}</span>`;
+      }
+    }
+  }
+  const cls=['cell',rec?'recorded':'',ds===today?'today':'',dow===0?'sun':'',dow===6?'sat':''].join(' ');
+  return `<button type="button" class="${cls}" data-date="${ds}" ${ds===today?'aria-current="date"':''}><span class="dn">${+ds.slice(8)}</span>${lines}<span class="ic">${icons}</span></button>`;
+}
+function renderCal(){
+  const first=new Date(calY,calM,1),startDow=first.getDay(),days=new Date(calY,calM+1,0).getDate();
+  let h=`<section class="welcome"><div class="welcome-copy"><span class="welcome-tag">きょうの健康ノート</span><h2>今日の記録</h2><p>${parse(today).getMonth()+1}月${parse(today).getDate()}日（${WD[parse(today).getDay()]}）</p></div><button class="btn entry" data-act="openToday">✏️ 入力する</button></section>
+  <section class="calendar-panel" aria-label="記録カレンダー">
+  <div class="calhead"><button class="ib" data-act="prevM" aria-label="前の月">‹</button><div class="ttl">${calY}年${calM+1}月</div><button class="ib" data-act="nextM" aria-label="次の月">›</button></div>
+  <div style="text-align:right;margin-bottom:6px"><button class="sm" data-act="thisM">今月へ</button></div>
+  <div class="cal">`;
+  WD.forEach((w,i)=>h+=`<div class="dow ${i===0?'sun':i===6?'sat':''}">${w}</div>`);
+  for(let i=0;i<startDow;i++)h+='<div class="cell blank"></div>';
+  for(let d=1;d<=days;d++){
+    const ds=`${calY}-${pad(calM+1)}-${pad(d)}`;
+    h+=cellHTML(ds,(startDow+d-1)%7);
+  }
+  h+='</div>';
+  // 凡例
+  const lg=state.items.filter(i=>i.cal).map(i=>`<span>${esc(i.icon)} ${esc(i.name)}${(i.type==='bp'||i.type==='number')&&i.val?'(値)':''}</span>`).join('');
+  h+=`<div class="legend">${lg}</div><div class="legend"><span style="color:var(--danger)">赤字：平均が135/85以上（家庭血圧の高血圧の目安）</span></div></section>`;
+  // 月間まとめ
+  const pre=`${calY}-${pad(calM+1)}-`;
+  const ds=Object.keys(state.records).filter(k=>k.startsWith(pre));
+  const mean=(arr)=>arr.length?Math.round(arr.reduce((a,b)=>a+b,0)/arr.length):null;
+  const sum=k=>{
+    const as=ds.map(d=>avgOf(fixRec(state.records[d])[k])).filter(Boolean);
+    const s=mean(as.map(a=>a.s).filter(x=>x!=null)),d=mean(as.map(a=>a.d).filter(x=>x!=null));
+    return {txt:s!=null||d!=null?`${s??'-'}/${d??'-'}`:'―',n:as.length};
+  };
+  const am=sum('am'),pm=sum('pm');
+  const drink=ds.filter(d=>state.records[d].v&&state.records[d].v.alcohol===true).length;
+  const rec=ds.length;
+  h+=`<div class="card" style="margin-top:12px"><h2>📊 ${calM+1}月のまとめ</h2><div class="stats">
+   <div class="stat"><small>朝の平均（${am.n}日）</small><b>${am.txt}</b></div>
+   <div class="stat"><small>夜の平均（${pm.n}日）</small><b>${pm.txt}</b></div>
+   <div class="stat"><small>飲酒した日</small><b>${drink}日</b></div>
+   <div class="stat"><small>記録のある日</small><b>${rec}日</b></div></div></div>
+  <p class="note">「入力する」（今日の分）か、カレンダーの日付をタップすると入力画面が開きます。</p>`;
+  $('#view').innerHTML=h;
+}
+
+/* ---------- 入力 ---------- */
+function avgHTML(list){
+  const a=avgOf(list);
+  if(!a)return `<span class="lb">平均</span><span class="vl"><small>1回目・2回目を入力すると自動計算</small></span>`;
+  return `<span class="lb">平均</span><span class="vl">${a.s??'-'} / ${a.d??'-'} <small>mmHg　脈拍 ${a.p??'-'}</small></span>`;
+}
+/* ---------- 入力補助（候補値） ---------- */
+function lastAvg(k,before){
+  const keys=Object.keys(state.records).filter(d=>d<before).sort().reverse();
+  for(const d of keys){const a=avgOf(fixRec(state.records[d])[k]);if(a)return a}
+  return null;
+}
+function suggestBP(k){ // 直近の平均 → なければ設定した初期値
+  if(!state.assist)return null;
+  const a=lastAvg(k,cur)||{},out={};let any=false;
+  for(const [f] of FIELDS){
+    const dv=num(state.defaults[f]);
+    out[f]=a[f]!=null?a[f]:(dv!==null?dv:'');
+    if(out[f]!=='')any=true;
+  }
+  return any?out:null;
+}
+const stepOf=it=>{const n=parseFloat(it.step);return n>0?n:0.1};
+function suggestNum(it){
+  if(!state.assist||it.assist===false)return '';
+  const keys=Object.keys(state.records).filter(d=>d<cur).sort().reverse();
+  for(const d of keys){const v=(state.records[d].v||{})[it.id];if(v!==''&&v!=null&&num(v)!==null)return v}
+  return '';
+}
+/* ---------- 入力ポップアップ ---------- */
+const sheet=$('#sheet'),sbody=$('#sbody');
+let draft=null,draftOrig='',sheetOpen=false,pushed=false,skipPop=false;
+const clone=o=>JSON.parse(JSON.stringify(o));
+const isDirty=()=>sheetOpen&&!!draft&&JSON.stringify(draft)!==draftOrig;
+function loadDraft(date){cur=date;draft=fixRec(clone(state.records[date]||{}));draftOrig=JSON.stringify(draft)}
+function updDirty(){$('#dirty').hidden=!isDirty()}
+function openSheet(date){
+  loadDraft(date);
+  sheetOpen=true;sheet.hidden=false;document.body.style.overflow='hidden';
+  renderSheet();sbody.scrollTop=0;
+  try{history.pushState({sheet:1},'');pushed=true}catch(e){pushed=false}
+}
+function closeSheet(){
+  sheetOpen=false;draft=null;sheet.hidden=true;document.body.style.overflow='';
+  if(pushed){pushed=false;skipPop=true;try{history.back()}catch(e){skipPop=false}}
+}
+async function requestClose(fromPop){
+  if(isDirty()&&!(await ask('保存していない変更があります。破棄して閉じますか？','破棄する'))){
+    if(fromPop){try{history.pushState({sheet:1},'');pushed=true}catch(e){}}
+    return;
+  }
+  closeSheet();
+}
+async function changeDate(date){
+  if(date&&date!==cur){
+    if(isDirty()&&!(await ask('保存していない変更があります。破棄して日付を移動しますか？','破棄して移動'))){renderSheet();return}
+    loadDraft(date);
+  }
+  renderSheet();sbody.scrollTop=0;
+}
+function saveSheet(){
+  const r=clone(draft);
+  if(isEmpty(r))delete state.records[cur];else state.records[cur]=r;
+  if(!save())return;
+  const d=parse(cur);calY=d.getFullYear();calM=d.getMonth();
+  closeSheet();
+  renderCal();
+  toast('保存しました');
+}
+function renderSheet(){
+  const keep=sbody.scrollTop,rec=draft,d=parse(cur);
+  $('#sttl').textContent=`${d.getMonth()+1}月${d.getDate()}日（${WD[d.getDay()]}）の記録`;
+  let h=`<div class="datebar"><button class="ib" data-act="prevDay" aria-label="前の日">◀</button>
+   <div class="dc"><input type="date" id="dateIn" value="${cur}"><span class="wd">${WD[d.getDay()]}曜</span></div>
+   <button class="ib" data-act="nextDay" aria-label="次の日">▶</button></div>
+   <div style="text-align:right;margin-bottom:8px"><button class="sm" data-act="today">今日にする</button></div>`;
+  const others=[];
+  for(const it of state.items){
+    if(!it.form)continue;
+    if(it.type==='bp'){
+      const k=bpKey(it);
+      h+=`<section class="card ${k}"><h2>${esc(it.icon)} ${esc(it.name)}</h2>`;
+      const sg=suggestBP(k);let hasS=false;
+      for(let i=0;i<2;i++){
+        const rowEmpty=FIELDS.every(([f])=>rec[k][i][f]===''||rec[k][i][f]==null);
+        h+=`<div class="mrow"><div class="mlabel">${i+1}回目</div>`;
+        for(const [f,short,long] of FIELDS){
+          const useS=rowEmpty&&sg&&sg[f]!=='';
+          if(useS)hasS=true;
+          const val=useS?sg[f]:rec[k][i][f];
+          h+=`<label class="fld"><span>${short}${f==='p'?'':'(mmHg)'}</span><input type="number" inputmode="numeric" class="${useS?'sugg':''}" data-bp="${k}" data-i="${i}" data-f="${f}" value="${esc(val)}" placeholder="${short}" aria-label="${esc(it.name)}${i+1}回目の${long}"></label>`;
+        }
+        h+='</div>';
+      }
+      const a=avgOf(rec[k]);
+      h+=`<div class="avg ${isHigh(a)?'hi':''}" id="avg-${k}">${avgHTML(rec[k])}</div>`;
+      if(hasS)h+=`<p class="sugghint" data-sh="${k}">💡 薄い文字は前回までの平均からの候補です。このままでは保存されません。使うときは「候補値を使う」を押すか、数字を入力してください。</p><button class="btn ghost block" style="margin-top:8px" data-act="commitSugg" data-k="${k}">候補値を使う</button>`;
+      h+='</section>';
+    }else others.push(it);
+  }
+  if(others.length){
+    h+='<section class="card"><h2>📋 その他の記録</h2>';
+    for(const it of others){
+      const v=rec.v[it.id]??'';
+      h+=`<div class="orow"><label class="t">${esc(it.icon)} ${esc(it.name)}</label>`;
+      if(it.type==='check'){
+        h+=`<div class="seg" data-v="${it.id}"><button data-seg="false" class="${v===false?'on':''}">なし</button><button data-seg="true" class="${v===true?'on':''}">あり</button></div>`;
+      }else if(it.type==='number'){
+        const sv=(v===''||v==null)?suggestNum(it):'';
+        h+=`<div class="unitw"><input type="number" inputmode="decimal" step="${stepOf(it)}" class="${sv!==''?'sugg':''}" data-v="${it.id}" value="${esc(sv!==''?sv:v)}" placeholder="数値を入力"><span>${esc(it.unit||'')}</span>${sv!==''?`<button class="sm" data-act="commitNum" data-id="${it.id}">この値を使う</button>`:''}</div>${sv!==''?'<p class="sugghint">💡 前回の値を候補にしています。このままでは保存されません。</p>':''}`;
+      }else{
+        h+=`<textarea data-v="${it.id}" placeholder="自由に入力">${esc(v)}</textarea>`;
+      }
+      h+='</div>';
+    }
+    h+='</section>';
+  }
+  if(state.records[cur])h+=`<button class="btn ghost block" data-act="delDay" style="color:var(--danger)">この日の保存済み記録を削除</button>`;
+  sbody.innerHTML=h;sbody.scrollTop=keep;updDirty();
+}
+
+/* ---------- 項目設定 ---------- */
+const PRESETS=['⚖️','🚶','🏃','💊','😴','🌡️','🧂','☕','🚬','💧','🍚','📝'];
+function typeLabel(t){return{bp:'血圧',check:'あり／なし',number:'数値',text:'メモ'}[t]}
+function renderItems(){
+  let h=`<div class="card"><h2>💡 入力補助</h2>
+   <label class="chk" style="padding-top:0"><input type="checkbox" id="assistOn" ${state.assist?'checked':''}>前回までの平均・値を入力欄に候補として入れる</label>
+   <p class="hint" style="margin-top:0">※この画面の設定変更は自動で保存されます。記録の入力は、入力画面の「保存する」を押したときに保存されます。</p>
+   <p class="hint">血圧は、直近の平均値（朝は朝、夜は夜）を入れます。体重などの数値は前回の値を入れます。候補は薄い文字で表示され、「候補値を使う」を押すか入力しない限り保存されません。</p>
+   <label class="lbl">過去の記録がないときの推奨値（空欄なら候補なし）</label>
+   <div class="grid2" style="grid-template-columns:repeat(3,1fr)">
+    <input type="number" inputmode="numeric" data-def="s" value="${esc(state.defaults.s)}" placeholder="最高">
+    <input type="number" inputmode="numeric" data-def="d" value="${esc(state.defaults.d)}" placeholder="最低">
+    <input type="number" inputmode="numeric" data-def="p" value="${esc(state.defaults.p)}" placeholder="脈拍"></div></div>
+   <div class="card"><h2>表示する項目</h2><p class="hint" style="margin-top:0">「入力画面に表示」は入力欄の表示、「カレンダーに表示」はカレンダー上のマークです。チェックを外しても記録済みのデータは消えません。</p></div>`;
+  for(const it of state.items){
+    h+=`<div class="item" data-id="${it.id}">
+     <div class="top"><input class="ico" type="text" data-ie="icon" value="${esc(it.icon)}" aria-label="アイコン"><input type="text" data-ie="name" value="${esc(it.name)}" aria-label="項目名"></div>
+     <div style="font-size:12px;color:var(--sub)">種類：${typeLabel(it.type)}${it.builtin?'<span class="tag">標準</span>':''}</div>
+     ${it.type==='number'?`<div class="grid2"><div><label class="lbl">単位</label><input type="text" data-ie="unit" value="${esc(it.unit||'')}" placeholder="kg など"></div>
+     <div><label class="lbl">▲▼で変わる幅</label><select data-ie="step">${['0.1','0.5','1','5','10'].map(v=>`<option value="${v}" ${String(stepOf(it))===v?'selected':''}>${v}${it.unit?' '+esc(it.unit):''}</option>`).join('')}</select></div></div>`:''}
+     <label class="chk"><input type="checkbox" data-ic="form" ${it.form?'checked':''}>入力画面に表示</label>
+     ${it.type==='number'?`<label class="chk"><input type="checkbox" data-ic="assist" ${it.assist!==false?'checked':''}>前回の値を候補に入れる</label>`:''}
+     <label class="chk"><input type="checkbox" data-ic="cal" ${it.cal?'checked':''}>カレンダーに表示</label>
+     ${(it.type==='bp'||it.type==='number')?`<label class="chk ${it.cal?'':'dis'}"><input type="checkbox" data-ic="val" ${it.val?'checked':''} ${it.cal?'':'disabled'}>${it.type==='bp'?'平均値も表示（アイコンだけにする場合は外す）':'値も表示（アイコンだけにする場合は外す）'}</label>`:''}
+     ${it.builtin?'':`<button class="sm" style="color:var(--danger)" data-act="delItem" data-id="${it.id}">この項目を削除</button>`}
+    </div>`;
+  }
+  h+=`<div class="card"><h2>➕ 項目を追加</h2>
+   <label class="lbl">項目名</label><input type="text" id="nName" placeholder="例：歩数、服薬、睡眠時間">
+   <label class="lbl">カレンダーに出すマーク（絵文字）</label><input type="text" id="nIcon" value="📌">
+   <div class="presets">${PRESETS.map(p=>`<button data-act="preset" data-ic="${p}">${p}</button>`).join('')}</div>
+   <div class="grid2"><div><label class="lbl">種類</label><select id="nType"><option value="number">数値（体重など）</option><option value="check">あり／なし</option><option value="text">メモ（文字）</option></select></div>
+   <div><label class="lbl">単位（数値のとき）</label><input type="text" id="nUnit" placeholder="kg, 歩 など"></div></div>
+   <button class="btn block" style="margin-top:12px" data-act="addItem">追加する</button></div>`;
+  setCfg(h);
+}
+
+/* ---------- CSV ---------- */
+function buildCols(){
+  const cols=[];
+  const add=(group,key,label,get,def)=>cols.push({group,key,label,get,def});
+  add('基本','date','日付',dt=>dt,true);
+  add('基本','wd','曜日',dt=>WD[parse(dt).getDay()],false);
+  for(const it of state.items.filter(i=>i.type==='bp')){
+    const k=bpKey(it),p=k==='am'?'朝':'夜',g=`${p}の血圧`;
+    [0,1].forEach(i=>FIELDS.forEach(([f,l])=>add(g,`${k}_${i+1}_${f}`,`${p}${i+1}回目_${l}`,(dt,r)=>r?r[k][i][f]:'',false)));
+    FIELDS.forEach(([f,l])=>add(g,`${k}_avg_${f}`,`${p}平均_${l}`,(dt,r)=>{const a=r&&avgOf(r[k]);return a&&a[f]!=null?a[f]:''},true));
+  }
+  for(const it of state.items.filter(i=>i.type!=='bp')){
+    const label=it.name+(it.type==='number'&&it.unit?`(${it.unit})`:'');
+    add('その他',`v_${it.id}`,label,(dt,r)=>{
+      if(!r)return '';
+      const v=r.v[it.id];
+      if(it.type==='check')return v===true?'あり':v===false?'なし':'';
+      return v==null?'':v;
+    },true);
+  }
+  return cols;
+}
+const colOn=c=>state.csvSel[c.key]===undefined?c.def:state.csvSel[c.key];
+function csvCell(v){const s=String(v==null?'':v);return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+function csvDates(){
+  const keys=Object.keys(state.records).sort();
+  const from=csvFrom||(keys[0]||today);
+  const to=csvTo||today;
+  const out=[];
+  if(csvEmptyDays){
+    for(let d=parse(from),e=parse(to);d<=e&&out.length<5000;d.setDate(d.getDate()+1))out.push(fmt(d));
+  }else keys.forEach(k=>{if(k>=from&&k<=to)out.push(k)});
+  return out;
+}
+function makeCSV(){
+  const cols=buildCols().filter(colOn);
+  const dates=csvDates();
+  const rows=[cols.map(c=>c.label)];
+  for(const dt of dates){
+    const r=state.records[dt]?fixRec(state.records[dt]):null;
+    rows.push(cols.map(c=>c.get(dt,r)));
+  }
+  return {text:rows.map(r=>r.map(csvCell).join(',')).join('\r\n'),rows:dates.length,cols:cols.length};
+}
+function renderCsv(){
+  const keys=Object.keys(state.records).sort();
+  if(!csvFrom)csvFrom=keys[0]||today;
+  const cols=buildCols();
+  const groups=[...new Set(cols.map(c=>c.group))];
+  let h=`<div class="card"><h2>📤 CSVに出力</h2>
+   <label class="lbl">出力する期間</label>
+   <div class="grid2"><input type="date" id="csvFrom" value="${csvFrom}"><input type="date" id="csvTo" value="${csvTo}"></div>
+   <label class="chk"><input type="checkbox" id="csvEmpty" ${csvEmptyDays?'checked':''}>記録のない日も行を出力する</label>
+   <h3>出力する項目</h3>`;
+  for(const g of groups){
+    h+=`<div class="grp"><div class="gh"><b>${esc(g)}</b><span><button class="sm" data-act="grpOn" data-g="${esc(g)}">全選択</button> <button class="sm" data-act="grpOff" data-g="${esc(g)}">全解除</button></span></div><div class="cols">`;
+    for(const c of cols.filter(c=>c.group===g)){
+      h+=`<label class="chk"><input type="checkbox" data-ck="${c.key}" ${colOn(c)?'checked':''}>${esc(c.label)}</label>`;
+    }
+    h+='</div></div>';
+  }
+  h+=`<p class="hint" id="csvInfo"></p>
+   <button class="btn block" data-act="dlCsv">CSVをダウンロード</button>
+   <p class="hint">Excelで文字化けしないUTF-8（BOM付き）で出力します。</p></div>
+  <div class="card"><h2>💾 バックアップ</h2>
+   <p class="hint" style="margin-top:0">記録はこの端末のブラウザ内に保存されています。機種変更やブラウザのデータ削除に備えて、ときどきバックアップを保存してください。</p>
+   <div class="grid2" style="margin-top:10px"><button class="btn ghost" data-act="dlJson">バックアップ保存</button><button class="btn ghost" data-act="pickJson">復元する</button></div>
+   <input type="file" id="jsonFile" accept=".json,application/json" hidden></div>`;
+  setCfg(h);
+  updCsvInfo();
+}
+function updCsvInfo(){const m=makeCSV();const e=$('#csvInfo');if(e)e.textContent=`出力予定：${m.rows}行 × ${m.cols}列`}
+function download(name,text,type){
+  // Androidアプリ（WebView版）のときはアプリ側で保存する
+  if(window.AndroidBridge&&AndroidBridge.saveFile){AndroidBridge.saveFile(name,text,type);return}
+  const blob=new Blob([text],{type});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+}
+
+/* ---------- イベント ---------- */
+const view=$('#view');
+const bindBoth=(type,fn)=>{view.addEventListener(type,fn);cfgBody.addEventListener(type,fn)};
+$('#cfgBtn').addEventListener('click',()=>openCfg());
+cfg.addEventListener('click',e=>{
+  if(e.target===cfg){closeCfg();return}
+  const t=e.target.closest('[data-ctab]');
+  if(t){cfgTab=t.dataset.ctab;renderCfg();cfgBody.scrollTop=0;return}
+  if(e.target.closest('[data-cact="close"]'))closeCfg();
+});
+
+bindBoth('click',async e=>{
+  const cell=e.target.closest('.cell[data-date]');
+  if(cell){openSheet(cell.dataset.date);return}
+  const b=e.target.closest('[data-act]');
+  if(!b)return;
+  const act=b.dataset.act;
+  switch(act){
+    case 'openToday':openSheet(today);break;
+    case 'prevM':calM--;if(calM<0){calM=11;calY--}renderCal();break;
+    case 'nextM':calM++;if(calM>11){calM=0;calY++}renderCal();break;
+    case 'thisM':{const n=new Date();calY=n.getFullYear();calM=n.getMonth();renderCal();break}
+    case 'preset':$('#nIcon').value=b.dataset.ic;break;
+    case 'addItem':{
+      const name=$('#nName').value.trim();
+      if(!name){toast('項目名を入力してください');break}
+      const type=$('#nType').value;
+      state.items.push({id:'c'+Date.now().toString(36),name,icon:$('#nIcon').value.trim()||'📌',type,unit:type==='number'?$('#nUnit').value.trim():'',form:true,cal:true,val:false});
+      save();renderItems();toast('追加しました');
+      break;
+    }
+    case 'delItem':{
+      const it=state.items.find(i=>i.id===b.dataset.id);
+      if(!it)break;
+      if(await ask(`「${it.name}」を削除しますか？\n入力済みのデータも削除されます。`,'削除する')){
+        state.items=state.items.filter(i=>i.id!==it.id);
+        for(const k in state.records){if(state.records[k].v)delete state.records[k].v[it.id];if(isEmpty(fixRec(state.records[k])))delete state.records[k]}
+        save();renderItems();
+      }
+      break;
+    }
+    case 'grpOn':case 'grpOff':
+      buildCols().filter(c=>c.group===b.dataset.g).forEach(c=>state.csvSel[c.key]=act==='grpOn');
+      save();renderCsv();break;
+    case 'dlCsv':{
+      const m=makeCSV();
+      if(!m.cols){toast('出力する項目を選んでください');break}
+      if(!m.rows){toast('この期間に記録がありません');break}
+      download(`血圧記録_${today.replace(/-/g,'')}.csv`,'\ufeff'+m.text,'text/csv;charset=utf-8');
+      toast('CSVを保存しました');
+      break;
+    }
+    case 'dlJson':
+      download(`血圧記録バックアップ_${today.replace(/-/g,'')}.json`,JSON.stringify(state,null,1),'application/json');
+      toast('バックアップを保存しました');break;
+    case 'pickJson':$('#jsonFile').click();break;
+  }
+});
+
+bindBoth('input',e=>{
+  const t=e.target;
+  if(t.dataset.def){state.defaults[t.dataset.def]=t.value;save()}
+  else if(t.dataset.ie){
+    const it=state.items.find(i=>i.id===t.closest('.item').dataset.id);
+    if(it){it[t.dataset.ie]=t.value;save()}
+  }
+});
+
+bindBoth('change',async e=>{
+  const t=e.target;
+  if(t.id==='assistOn'){state.assist=t.checked;save()}
+  else if(t.dataset.ic){
+    const it=state.items.find(i=>i.id===t.closest('.item').dataset.id);
+    if(it){it[t.dataset.ic]=t.checked;save();if(t.dataset.ic==='cal')renderItems()}
+  }
+  else if(t.dataset.ck){state.csvSel[t.dataset.ck]=t.checked;save();updCsvInfo()}
+  else if(t.id==='csvFrom'){csvFrom=t.value;updCsvInfo()}
+  else if(t.id==='csvTo'){csvTo=t.value;updCsvInfo()}
+  else if(t.id==='csvEmpty'){csvEmptyDays=t.checked;updCsvInfo()}
+  else if(t.id==='jsonFile'&&t.files[0]){
+    const f=t.files[0];
+    try{
+      const obj=JSON.parse(await f.text());
+      if(!obj||typeof obj!=='object'||!obj.records||!obj.items)throw new Error('形式が違います');
+      if(await ask('現在の記録をバックアップの内容で置き換えます。よろしいですか？','復元する')){
+        state=normalize(obj);save();csvFrom=null;renderCsv();toast('復元しました');
+      }
+    }catch(err){toast('復元できませんでした：ファイルをご確認ください')}
+    t.value='';
+  }
+});
+
+/* ---------- 入力ポップアップのイベント ---------- */
+sheet.addEventListener('click',async e=>{
+  if(e.target===sheet){requestClose(false);return}
+  const seg=e.target.closest('[data-seg]');
+  if(seg){
+    const box=seg.parentElement,id=box.dataset.v,nv=seg.dataset.seg==='true';
+    if(draft.v[id]===nv)delete draft.v[id];else draft.v[id]=nv;
+    box.querySelectorAll('button').forEach(x=>x.classList.toggle('on',draft.v[id]!==undefined&&String(draft.v[id])===x.dataset.seg));
+    updDirty();return;
+  }
+  const b=e.target.closest('[data-act]');
+  if(!b)return;
+  const shift=n=>{const d=parse(cur);d.setDate(d.getDate()+n);changeDate(fmt(d))};
+  switch(b.dataset.act){
+    case 'closeSheet':case 'cancelSheet':requestClose(false);break;
+    case 'saveSheet':saveSheet();break;
+    case 'prevDay':shift(-1);break;
+    case 'nextDay':shift(1);break;
+    case 'today':changeDate(today);break;
+    case 'delDay':
+      if(await ask(`${cur} の保存済みの記録を削除しますか？`,'削除する')){
+        delete state.records[cur];save();
+        closeSheet();renderCal();toast('削除しました');
+      }
+      break;
+    case 'commitSugg':{
+      const k=b.dataset.k;
+      sbody.querySelectorAll(`input.sugg[data-bp="${k}"]`).forEach(x=>{draft[k][+x.dataset.i][x.dataset.f]=x.value});
+      renderSheet();toast('候補値を使います（「保存する」で記録）');break;
+    }
+    case 'commitNum':{
+      const x=sbody.querySelector(`input[data-v="${b.dataset.id}"]`);
+      if(!x||x.value==='')break;
+      draft.v[b.dataset.id]=x.value;
+      renderSheet();toast('この値を使います（「保存する」で記録）');break;
+    }
+  }
+});
+
+sheet.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.bp){
+    const k=t.dataset.bp;
+    const row=[...sbody.querySelectorAll(`input[data-bp="${k}"][data-i="${t.dataset.i}"]`)];
+    row.forEach(x=>{draft[k][+t.dataset.i][x.dataset.f]=x.value;x.classList.remove('sugg')});
+    if(!sbody.querySelector(`input.sugg[data-bp="${k}"]`)){
+      sbody.querySelectorAll(`[data-act="commitSugg"][data-k="${k}"],[data-sh="${k}"]`).forEach(x=>x.remove());
+    }
+    const a=avgOf(draft[k]),box=$('#avg-'+k);
+    box.className='avg '+(isHigh(a)?'hi':'');
+    box.innerHTML=avgHTML(draft[k]);
+  }else if(t.dataset.v){
+    if(t.value==='')delete draft.v[t.dataset.v];else draft.v[t.dataset.v]=t.value;
+    if(t.classList.contains('sugg')){
+      t.classList.remove('sugg');
+      const w=t.closest('.orow');
+      w.querySelectorAll('[data-act="commitNum"],.sugghint').forEach(x=>x.remove());
+    }
+  }
+  updDirty();
+});
+
+sheet.addEventListener('change',e=>{
+  if(e.target.id==='dateIn'){
+    if(e.target.value)changeDate(e.target.value);else renderSheet();
+  }
+});
+
+sheet.addEventListener('focusin',e=>{
+  const t=e.target;
+  if(t.classList&&t.classList.contains('sugg'))setTimeout(()=>{try{t.select()}catch(_){}},0);
+});
+
+window.addEventListener('popstate',()=>{
+  if(skipPop){skipPop=false;return}
+  if(sheetOpen){pushed=false;requestClose(true)}
+  else if(cfgOpen){cfgPushed=false;closeCfg()}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&$('#modal').hidden){if(sheetOpen)requestClose(false);else if(cfgOpen)closeCfg()}
+});
+
+renderCal();
+
+/* ---------- PWA：オフライン対応・データ保護 ---------- */
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})});
+}
+// 端末の空き容量不足時にブラウザが記録を自動削除しないよう依頼
+if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{})}
+</script>
+</body>
+</html>
