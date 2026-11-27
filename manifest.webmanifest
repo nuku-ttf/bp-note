@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "血圧記録ノート",
+  "short_name": "血圧ノート",
+  "description": "朝晩の血圧・飲酒・体重などを記録してカレンダーで確認できるアプリ",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4fffc",
+  "theme_color": "#ffd1e7",
+  "categories": ["health", "medical", "lifestyle"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
